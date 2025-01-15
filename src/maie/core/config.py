@@ -18,6 +18,8 @@ class Settings:
     domain_context: str = "financial-services"
     redis_url: str = "redis://localhost:6379/0"
     postgres_url: str = "postgresql://postgres:postgres@localhost:5432/maie"
+    checkpoint_dir: str = ".maie/checkpoints"
+    use_mock_providers: bool = True
     openai_api_key: str = ""
     openai_model: str = ""
     anthropic_api_key: str = ""
@@ -40,6 +42,8 @@ class Settings:
                 "POSTGRES_URL",
                 "postgresql://postgres:postgres@localhost:5432/maie",
             ),
+            checkpoint_dir=os.getenv("CHECKPOINT_DIR", ".maie/checkpoints"),
+            use_mock_providers=_as_bool(os.getenv("USE_MOCK_PROVIDERS"), True),
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             openai_model=os.getenv("OPENAI_MODEL", ""),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
@@ -62,4 +66,3 @@ class Settings:
             if redacted[key]:
                 redacted[key] = "***redacted***"
         return redacted
-
