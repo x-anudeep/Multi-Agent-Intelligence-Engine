@@ -94,3 +94,26 @@ class RoutingDecision:
             "reason": self.reason,
         }
 
+
+@dataclass(slots=True)
+class ToolExecutionRecord:
+    tool_name: str
+    status: str
+    summary: str
+
+    def to_dict(self) -> dict[str, str]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class ModelInvocationRecord:
+    provider: ProviderName
+    task_name: str
+    summary: str
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "provider": self.provider.value,
+            "task_name": self.task_name,
+            "summary": self.summary,
+        }

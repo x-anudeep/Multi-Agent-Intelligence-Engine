@@ -6,7 +6,14 @@ from enum import Enum
 from typing import Any, TypedDict
 from uuid import uuid4
 
-from maie.domain.models import EscalationRecord, RiskAssessment, RoutingDecision, SupplierSignal
+from maie.domain.models import (
+    EscalationRecord,
+    ModelInvocationRecord,
+    RiskAssessment,
+    RoutingDecision,
+    SupplierSignal,
+    ToolExecutionRecord,
+)
 
 
 class WorkflowState(TypedDict, total=False):
@@ -21,6 +28,10 @@ class WorkflowState(TypedDict, total=False):
     draft_report: str | None
     routing_history: list[RoutingDecision]
     escalations: list[EscalationRecord]
+    tool_history: list[ToolExecutionRecord]
+    model_history: list[ModelInvocationRecord]
+    audit_trail: list[str]
+    checkpoint_labels: list[str]
     awaiting_human: bool
     human_decision: str | None
     status: str
@@ -46,6 +57,10 @@ def build_initial_state(
         draft_report=None,
         routing_history=[],
         escalations=[],
+        tool_history=[],
+        model_history=[],
+        audit_trail=[],
+        checkpoint_labels=[],
         awaiting_human=False,
         human_decision=None,
         status="new",
@@ -69,4 +84,3 @@ def _serialize_value(value: Any) -> Any:
     if isinstance(value, Enum):
         return value.value
     return value
-
