@@ -6,7 +6,7 @@ import json
 from maie.core.config import Settings
 from maie.domain.models import SignalSource, SupplierSignal
 from maie.graph.state import serialize_state
-from maie.runtime.simulator import run_local_simulation
+from maie.runtime.engine import build_default_engine
 
 
 async def _run() -> dict[str, object]:
@@ -29,14 +29,19 @@ async def _run() -> dict[str, object]:
             region="United States",
         ),
     ]
-    final_state = await run_local_simulation("Apex Components", signals)
+    engine = build_default_engine(settings)
+    artifacts = await engine.run("Apex Components", signals)
     return {
         "settings": settings.to_redacted_dict(),
-        "state": serialize_state(final_state),
+        "checkpoints": {
+            "count": len(artifacts.checkpoint_records),
+            "location": artifacts.checkpoint_location,
+        },
+        "telemetry": artifacts.telemetry.summarize(),
+        "state": serialize_state(artifacts.state),
     }
 
 
 def main() -> None:
     payload = asyncio.run(_run())
     print(json.dumps(payload, indent=2))
-

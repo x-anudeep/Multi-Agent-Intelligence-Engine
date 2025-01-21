@@ -18,6 +18,16 @@ Phase 1 establishes the engineering backbone of the platform:
 - optional LangGraph graph builder
 - baseline tests
 
+## Phase 2 Goal
+
+Phase 2 upgrades the foundation into a more enterprise-like runtime:
+
+- multi-provider abstraction layer for OpenAI, Anthropic, and Vertex AI
+- deterministic tool-backed research flow
+- workflow checkpointing for auditability and replay
+- telemetry events for each routing and agent step
+- orchestrated engine that packages state, checkpoints, and execution metadata
+
 ## High-Level Architecture
 
 ```text
@@ -65,6 +75,8 @@ cp .env.example .env
 PYTHONPATH=src python -m maie
 ```
 
+The local run uses deterministic mock providers so the workflow stays testable without any cloud credentials.
+
 ## Why This Matters For Accenture
 
 This repo is intentionally shaped around the kind of work an AI Native Software Engineer does in enterprise delivery:
@@ -73,4 +85,3 @@ This repo is intentionally shaped around the kind of work an AI Native Software 
 - modular agent and tool abstractions that can support multiple model providers
 - domain-specific workflow state designed for auditability and later evaluation harnesses
 - clear separation between proof-of-concept logic and production extensions like telemetry, checkpointing, and human review
-

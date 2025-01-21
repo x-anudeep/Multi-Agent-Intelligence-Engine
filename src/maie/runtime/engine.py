@@ -1,0 +1,163 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Protocol
+
+from maie.agents.base import BaseAgent
+from maie.agents.specialists import (
+    HumanReviewAgent,
+    ReportGenerationAgent,
+    ResearchAgent,
+    RiskScoringAgent,
+)
+from maie.checkpoints.store import CheckpointRecord, JsonFileCheckpointStore
+from maie.core.config import Settings
+from maie.domain.models import AgentTarget, RoutingDecision, SupplierSignal, WorkflowStatus
+from maie.graph.state import WorkflowState, build_initial_state
+from maie.observability.telemetry import WorkflowTelemetry
+from maie.providers.registry import ProviderRegistry, build_default_provider_registry
+from maie.routing.policy import PolicyRouter
+from maie.tools.intelligence import build_default_tool_registry
+from maie.tools.registry import ToolRegistry
+
+
+class CheckpointStore(Protocol):
+    def save(self, workflow_id: str, label: str, state: WorkflowState) -> CheckpointRecord:
+        ...
+
+
+@dataclass(slots=True)
+class WorkflowRunArtifacts:
+    state: WorkflowState
+    telemetry: WorkflowTelemetry
+    checkpoint_records: list[CheckpointRecord]
+    checkpoint_location: str | None
+
+
+class WorkflowEngine:
+    def __init__(
+        self,
+        *,
+        router: PolicyRouter,
+        agents: dict[AgentTarget, BaseAgent],
+        checkpoint_store: CheckpointStore,
+        telemetry: WorkflowTelemetry,
+    ) -> None:
+        self.router = router
+        self.agents = agents
+        self.checkpoint_store = checkpoint_store
+        self.telemetry = telemetry
+
+    async def run(
+        self,
+        supplier_name: str,
+        signals: list[SupplierSignal],
+        *,
+        max_steps: int = 8,
+    ) -> WorkflowRunArtifacts:
+        state = build_initial_state(supplier_name=supplier_name, signals=signals)
+        checkpoint_records: list[CheckpointRecord] = []
+        checkpoint_records.append(self._save_checkpoint(state, "initialized"))
+        self.telemetry.record(
+            state["workflow_id"],
+            "workflow_initialized",
+            supplier_name=supplier_name,
+            signal_count=len(signals),
+        )
+
+        for step_index in range(max_steps):
+            decision = self.router.route(state)
+            self._record_decision(state, decision)
+            self.telemetry.record(
+                state["workflow_id"],
+                "routing_decision",
+                step=step_index + 1,
+                target_agent=decision.target_agent.value,
+                provider=decision.provider.value,
+            )
+            checkpoint_records.append(
+                self._save_checkpoint(state, f"decision_{step_index + 1}_{decision.target_agent.value}")
+            )
+
+            if decision.target_agent is AgentTarget.FINISH:
+                state["status"] = WorkflowStatus.COMPLETE.value
+                self.telemetry.record(
+                    state["workflow_id"],
+                    "workflow_completed",
+                    step=step_index + 1,
+                    final_status=state["status"],
+                )
+                checkpoint_records.append(self._save_checkpoint(state, "completed"))
+                return WorkflowRunArtifacts(
+                    state=state,
+                    telemetry=self.telemetry,
+                    checkpoint_records=checkpoint_records,
+                    checkpoint_location=self._checkpoint_location(state["workflow_id"]),
+                )
+
+            result = await self.agents[decision.target_agent].run(state)
+            state.update(result.state_updates)
+            self.telemetry.record(
+                state["workflow_id"],
+                "agent_completed",
+                step=step_index + 1,
+                agent_name=result.agent_name.value,
+                audit_log=result.audit_log,
+            )
+            checkpoint_records.append(
+                self._save_checkpoint(state, f"post_{step_index + 1}_{result.agent_name.value}")
+            )
+
+        raise RuntimeError("Workflow exceeded the maximum number of steps.")
+
+    def _record_decision(self, state: WorkflowState, decision: RoutingDecision) -> None:
+        history = [*state.get("routing_history", []), decision]
+        state["last_decision"] = decision
+        state["routing_history"] = history
+
+    def _save_checkpoint(self, state: WorkflowState, label: str) -> CheckpointRecord:
+        labels = [*state.get("checkpoint_labels", []), label]
+        state["checkpoint_labels"] = labels
+        return self.checkpoint_store.save(state["workflow_id"], label, state)
+
+    def _checkpoint_location(self, workflow_id: str) -> str | None:
+        if isinstance(self.checkpoint_store, JsonFileCheckpointStore):
+            return str(self.checkpoint_store.get_path(workflow_id))
+        return None
+
+
+def build_default_agents(
+    provider_registry: ProviderRegistry,
+    tool_registry: ToolRegistry,
+) -> dict[AgentTarget, BaseAgent]:
+    return {
+        AgentTarget.RESEARCH: ResearchAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.RISK_SCORING: RiskScoringAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.REPORT: ReportGenerationAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.HUMAN_REVIEW: HumanReviewAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+    }
+
+
+def build_default_engine(settings: Settings) -> WorkflowEngine:
+    provider_registry = build_default_provider_registry(settings)
+    tool_registry = build_default_tool_registry()
+    checkpoint_store = JsonFileCheckpointStore(settings.checkpoint_dir)
+    telemetry = WorkflowTelemetry(enable_logging=settings.enable_telemetry)
+    return WorkflowEngine(
+        router=PolicyRouter(),
+        agents=build_default_agents(provider_registry, tool_registry),
+        checkpoint_store=checkpoint_store,
+        telemetry=telemetry,
+    )

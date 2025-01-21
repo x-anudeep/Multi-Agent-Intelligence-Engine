@@ -7,9 +7,12 @@ from maie.agents.specialists import (
     ResearchAgent,
     RiskScoringAgent,
 )
+from maie.core.config import Settings
 from maie.domain.models import AgentTarget, RoutingDecision, SupplierSignal, WorkflowStatus
 from maie.graph.state import WorkflowState, build_initial_state
+from maie.providers.registry import build_default_provider_registry
 from maie.routing.policy import PolicyRouter
+from maie.tools.intelligence import build_default_tool_registry
 
 
 async def run_local_simulation(
@@ -20,11 +23,26 @@ async def run_local_simulation(
 ) -> WorkflowState:
     state = build_initial_state(supplier_name=supplier_name, signals=signals)
     router = PolicyRouter()
+    settings = Settings()
+    provider_registry = build_default_provider_registry(settings)
+    tool_registry = build_default_tool_registry()
     agents: dict[AgentTarget, BaseAgent] = {
-        AgentTarget.RESEARCH: ResearchAgent(),
-        AgentTarget.RISK_SCORING: RiskScoringAgent(),
-        AgentTarget.REPORT: ReportGenerationAgent(),
-        AgentTarget.HUMAN_REVIEW: HumanReviewAgent(),
+        AgentTarget.RESEARCH: ResearchAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.RISK_SCORING: RiskScoringAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.REPORT: ReportGenerationAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.HUMAN_REVIEW: HumanReviewAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
     }
 
     for _ in range(max_steps):
@@ -44,4 +62,3 @@ def _record_decision(state: WorkflowState, decision: RoutingDecision) -> None:
     history = [*state.get("routing_history", []), decision]
     state["last_decision"] = decision
     state["routing_history"] = history
-

@@ -10,9 +10,12 @@ from maie.agents.specialists import (
     ResearchAgent,
     RiskScoringAgent,
 )
+from maie.core.config import Settings
 from maie.domain.models import AgentTarget
 from maie.graph.state import WorkflowState
+from maie.providers.registry import build_default_provider_registry
 from maie.routing.policy import PolicyRouter
+from maie.tools.intelligence import build_default_tool_registry
 
 try:
     from langgraph.graph import END, START, StateGraph
@@ -29,11 +32,26 @@ def build_graph() -> Any:
         )
 
     router = PolicyRouter()
+    settings = Settings()
+    provider_registry = build_default_provider_registry(settings)
+    tool_registry = build_default_tool_registry()
     agents: dict[AgentTarget, BaseAgent] = {
-        AgentTarget.RESEARCH: ResearchAgent(),
-        AgentTarget.RISK_SCORING: RiskScoringAgent(),
-        AgentTarget.REPORT: ReportGenerationAgent(),
-        AgentTarget.HUMAN_REVIEW: HumanReviewAgent(),
+        AgentTarget.RESEARCH: ResearchAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.RISK_SCORING: RiskScoringAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.REPORT: ReportGenerationAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
+        AgentTarget.HUMAN_REVIEW: HumanReviewAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
     }
 
     graph = StateGraph(WorkflowState)
@@ -80,4 +98,3 @@ def _agent_node(agent: BaseAgent) -> Callable[[WorkflowState], Any]:
         return result.state_updates
 
     return run
-
