@@ -25,6 +25,9 @@ class CheckpointStore(Protocol):
     def save(self, workflow_id: str, label: str, state: WorkflowState) -> CheckpointRecord:
         ...
 
+    def load(self, workflow_id: str) -> list[CheckpointRecord]:
+        ...
+
 
 @dataclass(slots=True)
 class WorkflowRunArtifacts:
@@ -53,9 +56,16 @@ class WorkflowEngine:
         supplier_name: str,
         signals: list[SupplierSignal],
         *,
+        sector: str = "financial-services",
+        jurisdiction: str = "US",
         max_steps: int = 8,
     ) -> WorkflowRunArtifacts:
-        state = build_initial_state(supplier_name=supplier_name, signals=signals)
+        state = build_initial_state(
+            supplier_name=supplier_name,
+            signals=signals,
+            sector=sector,
+            jurisdiction=jurisdiction,
+        )
         checkpoint_records: list[CheckpointRecord] = []
         checkpoint_records.append(self._save_checkpoint(state, "initialized"))
         self.telemetry.record(
@@ -124,6 +134,9 @@ class WorkflowEngine:
         if isinstance(self.checkpoint_store, JsonFileCheckpointStore):
             return str(self.checkpoint_store.get_path(workflow_id))
         return None
+
+    def load_checkpoints(self, workflow_id: str) -> list[CheckpointRecord]:
+        return self.checkpoint_store.load(workflow_id)
 
 
 def build_default_agents(
