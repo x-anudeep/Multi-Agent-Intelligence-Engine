@@ -1,4 +1,4 @@
-.PHONY: install format lint test run
+.PHONY: install format lint test run api docker-build
 
 install:
 	python -m pip install -e ".[dev]"
@@ -15,3 +15,8 @@ test:
 run:
 	PYTHONPATH=src python -m maie
 
+api:
+	PYTHONPATH=src python -m maie.api.cli
+
+docker-build:
+	docker build -t maie:2.0.0 .

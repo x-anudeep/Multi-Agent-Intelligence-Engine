@@ -28,6 +28,16 @@ Phase 2 upgrades the foundation into a more enterprise-like runtime:
 - telemetry events for each routing and agent step
 - orchestrated engine that packages state, checkpoints, and execution metadata
 
+## Phase 3 Goal
+
+Phase 3 turns the runtime into a delivery-ready service:
+
+- Pydantic request and response contracts for workflow execution
+- application service layer for API-friendly orchestration
+- optional FastAPI HTTP surface for enterprise integration
+- Docker and Docker Compose assets for local delivery
+- Kubernetes manifests for deployment, service exposure, and autoscaling
+
 ## High-Level Architecture
 
 ```text
@@ -76,6 +86,41 @@ PYTHONPATH=src python -m maie
 ```
 
 The local run uses deterministic mock providers so the workflow stays testable without any cloud credentials.
+
+## API Run
+
+After installing API dependencies, the service can be started with:
+
+```bash
+python -m pip install -e ".[dev]"
+PYTHONPATH=src python -m maie.api.cli
+```
+
+Example workflow request:
+
+```json
+{
+  "supplier_name": "Apex Components",
+  "signals": [
+    {
+      "source": "news",
+      "headline": "Port congestion delays high-value semiconductor shipments",
+      "summary": "Major logistics bottlenecks are extending shipment timelines by 10 days.",
+      "severity": 4,
+      "region": "North America"
+    },
+    {
+      "source": "sec_filing",
+      "headline": "Supplier disclosed material uncertainty tied to debt covenants",
+      "summary": "Latest filing highlights liquidity pressure and refinancing risk.",
+      "severity": 5,
+      "region": "United States"
+    }
+  ]
+}
+```
+
+Container and deployment assets are available in `Dockerfile`, `docker-compose.yml`, and `deploy/kubernetes/`.
 
 ## Why This Matters For Accenture
 

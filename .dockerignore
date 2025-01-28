@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.git
+.maie
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+dist
+htmlcov
+

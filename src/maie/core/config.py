@@ -10,6 +10,12 @@ def _as_bool(value: str | None, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _as_int(value: str | None, default: int) -> int:
+    if value is None:
+        return default
+    return int(value)
+
+
 @dataclass(slots=True)
 class Settings:
     app_name: str = "multi-agent-intelligence-engine"
@@ -20,6 +26,9 @@ class Settings:
     postgres_url: str = "postgresql://postgres:postgres@localhost:5432/maie"
     checkpoint_dir: str = ".maie/checkpoints"
     use_mock_providers: bool = True
+    api_host: str = "0.0.0.0"
+    api_port: int = 8080
+    api_workers: int = 1
     openai_api_key: str = ""
     openai_model: str = ""
     anthropic_api_key: str = ""
@@ -44,6 +53,9 @@ class Settings:
             ),
             checkpoint_dir=os.getenv("CHECKPOINT_DIR", ".maie/checkpoints"),
             use_mock_providers=_as_bool(os.getenv("USE_MOCK_PROVIDERS"), True),
+            api_host=os.getenv("API_HOST", "0.0.0.0"),
+            api_port=_as_int(os.getenv("API_PORT"), 8080),
+            api_workers=_as_int(os.getenv("API_WORKERS"), 1),
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             openai_model=os.getenv("OPENAI_MODEL", ""),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
