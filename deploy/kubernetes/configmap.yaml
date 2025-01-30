@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maie-config
+data:
+  APP_ENV: "prod"
+  API_HOST: "0.0.0.0"
+  API_PORT: "8080"
+  CHECKPOINT_DIR: "/var/lib/maie/checkpoints"
+  DOMAIN_CONTEXT: "financial-services"
+  USE_MOCK_PROVIDERS: "false"
+

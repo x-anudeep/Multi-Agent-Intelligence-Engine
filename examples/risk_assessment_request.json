@@ -1,0 +1,20 @@
+{
+  "supplier_name": "Apex Components",
+  "signals": [
+    {
+      "source": "news",
+      "headline": "Port congestion delays high-value semiconductor shipments",
+      "summary": "Major logistics bottlenecks are extending shipment timelines by 10 days.",
+      "severity": 4,
+      "region": "North America"
+    },
+    {
+      "source": "sec_filing",
+      "headline": "Supplier disclosed material uncertainty tied to debt covenants",
+      "summary": "Latest filing highlights liquidity pressure and refinancing risk.",
+      "severity": 5,
+      "region": "United States"
+    }
+  ]
+}
+
