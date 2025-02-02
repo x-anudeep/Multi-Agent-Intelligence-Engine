@@ -29,6 +29,9 @@ class Settings:
     api_host: str = "0.0.0.0"
     api_port: int = 8080
     api_workers: int = 1
+    knowledge_dir: str = "knowledge/financial-services"
+    enable_governance: bool = True
+    eval_risk_score_tolerance: int = 15
     openai_api_key: str = ""
     openai_model: str = ""
     anthropic_api_key: str = ""
@@ -56,6 +59,9 @@ class Settings:
             api_host=os.getenv("API_HOST", "0.0.0.0"),
             api_port=_as_int(os.getenv("API_PORT"), 8080),
             api_workers=_as_int(os.getenv("API_WORKERS"), 1),
+            knowledge_dir=os.getenv("KNOWLEDGE_DIR", "knowledge/financial-services"),
+            enable_governance=_as_bool(os.getenv("ENABLE_GOVERNANCE"), True),
+            eval_risk_score_tolerance=_as_int(os.getenv("EVAL_RISK_SCORE_TOLERANCE"), 15),
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             openai_model=os.getenv("OPENAI_MODEL", ""),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),

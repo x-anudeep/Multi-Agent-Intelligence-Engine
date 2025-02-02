@@ -10,6 +10,7 @@ from maie.api.contracts import (
     WorkflowExecutionResponse,
 )
 from maie.core.config import Settings
+from maie.governance.policies import GovernancePolicy
 from maie.graph.state import serialize_state
 from maie.runtime.engine import WorkflowEngine, WorkflowRunArtifacts, build_default_engine
 
@@ -23,11 +24,13 @@ class WorkflowApplicationService:
     ) -> None:
         self.settings = settings
         self.engine_factory = engine_factory
+        self.governance_policy = GovernancePolicy(settings)
 
     async def execute_risk_workflow(
         self,
         request: RiskWorkflowRequest,
     ) -> WorkflowExecutionResponse:
+        governance_review = self.governance_policy.review_request(request)
         engine = self.engine_factory(self.settings)
         artifacts = await engine.run(
             request.supplier_name,
@@ -36,7 +39,12 @@ class WorkflowApplicationService:
             jurisdiction=request.jurisdiction,
             max_steps=request.max_steps,
         )
-        return self._build_execution_response(artifacts)
+        response = self._build_execution_response(
+            artifacts,
+            governance_approved=governance_review.approved,
+            governance_findings=[finding.message for finding in governance_review.findings],
+        )
+        return self.governance_policy.sanitize_execution_response(response)
 
     def get_checkpoint_history(self, workflow_id: str) -> CheckpointHistoryResponse:
         engine = self.engine_factory(self.settings)
@@ -62,11 +70,15 @@ class WorkflowApplicationService:
             environment=self.settings.environment,
             status="ok",
             provider_mode="mock" if self.settings.use_mock_providers else "live",
+            governance_enabled=self.settings.enable_governance,
         )
 
     def _build_execution_response(
         self,
         artifacts: WorkflowRunArtifacts,
+        *,
+        governance_approved: bool,
+        governance_findings: list[str],
     ) -> WorkflowExecutionResponse:
         state = artifacts.state
         risk_assessment = state.get("risk_assessment")
@@ -93,6 +105,9 @@ class WorkflowApplicationService:
                 risk_assessment.requires_human_review if risk_assessment is not None else None
             ),
             report_preview=state.get("draft_report"),
+            knowledge_hits=state.get("knowledge_hits", []),
+            governance_approved=governance_approved,
+            governance_findings=governance_findings,
             audit_trail=state.get("audit_trail", []),
             state_snapshot=serialize_state(state),
         )

@@ -22,6 +22,7 @@ class ResearchAgent(BaseAgent):
         tool_registry = self.tool_registry
         tool_results: list[dict[str, object]] = []
         tool_history = [*state.get("tool_history", [])]
+        knowledge_hits = [*state.get("knowledge_hits", [])]
 
         if tool_registry is not None:
             for tool_name in [
@@ -44,6 +45,18 @@ class ResearchAgent(BaseAgent):
                     )
                 )
 
+        if self.knowledge_retriever is not None:
+            query = " ".join(
+                [
+                    state["supplier_name"],
+                    *[signal.headline for signal in signals],
+                ]
+            )
+            retrievals = self.knowledge_retriever.retrieve(query, top_k=2)
+            knowledge_hits.extend(
+                [f"{hit.title}: {hit.excerpt}" for hit in retrievals]
+            )
+
         provider = self._require_provider_registry().get(self.provider)
         provider_output = await provider.generate_text(
             "research_synthesis",
@@ -51,6 +64,7 @@ class ResearchAgent(BaseAgent):
                 "supplier_name": state["supplier_name"],
                 "signals": [signal.to_dict() for signal in signals],
                 "tool_results": tool_results,
+                "knowledge_hits": knowledge_hits,
             },
         )
 
@@ -62,6 +76,7 @@ class ResearchAgent(BaseAgent):
             ],
         ]
         evidence = [finding for result in tool_results for finding in result.get("findings", [])]
+        evidence.extend(knowledge_hits)
         if not evidence:
             evidence = [
                 f"Evidence extracted from {signal.source.value}: {signal.summary}"
@@ -92,6 +107,7 @@ class ResearchAgent(BaseAgent):
                 "collected_evidence": evidence,
                 "tool_history": tool_history,
                 "model_history": model_history,
+                "knowledge_hits": knowledge_hits,
                 "audit_trail": audit_trail,
                 "status": WorkflowStatus.RESEARCHING.value,
             },

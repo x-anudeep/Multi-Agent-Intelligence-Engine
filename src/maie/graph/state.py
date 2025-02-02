@@ -30,6 +30,7 @@ class WorkflowState(TypedDict, total=False):
     escalations: list[EscalationRecord]
     tool_history: list[ToolExecutionRecord]
     model_history: list[ModelInvocationRecord]
+    knowledge_hits: list[str]
     audit_trail: list[str]
     checkpoint_labels: list[str]
     awaiting_human: bool
@@ -59,6 +60,7 @@ def build_initial_state(
         escalations=[],
         tool_history=[],
         model_history=[],
+        knowledge_hits=[],
         audit_trail=[],
         checkpoint_labels=[],
         awaiting_human=False,

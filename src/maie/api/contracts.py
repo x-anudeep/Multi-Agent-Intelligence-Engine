@@ -42,6 +42,7 @@ class HealthResponse(BaseModel):
     environment: str
     status: str
     provider_mode: str
+    governance_enabled: bool
 
 
 class CheckpointResponse(BaseModel):
@@ -69,6 +70,8 @@ class WorkflowExecutionResponse(BaseModel):
     disruption_probability: float | None
     requires_human_review: bool | None
     report_preview: str | None
+    knowledge_hits: list[str]
+    governance_approved: bool
+    governance_findings: list[str]
     audit_trail: list[str]
     state_snapshot: dict[str, object]
-

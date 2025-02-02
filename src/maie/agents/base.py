@@ -8,6 +8,7 @@ from maie.domain.models import AgentTarget, ProviderName
 from maie.graph.state import WorkflowState
 
 if TYPE_CHECKING:
+    from maie.knowledge.retriever import LocalKnowledgeRetriever
     from maie.providers.registry import ProviderRegistry
     from maie.tools.registry import ToolRegistry
 
@@ -28,9 +29,11 @@ class BaseAgent(ABC):
         *,
         provider_registry: "ProviderRegistry | None" = None,
         tool_registry: "ToolRegistry | None" = None,
+        knowledge_retriever: "LocalKnowledgeRetriever | None" = None,
     ) -> None:
         self.provider_registry = provider_registry
         self.tool_registry = tool_registry
+        self.knowledge_retriever = knowledge_retriever
 
     def _require_provider_registry(self) -> "ProviderRegistry":
         if self.provider_registry is None:

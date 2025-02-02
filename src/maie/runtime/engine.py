@@ -14,6 +14,7 @@ from maie.checkpoints.store import CheckpointRecord, JsonFileCheckpointStore
 from maie.core.config import Settings
 from maie.domain.models import AgentTarget, RoutingDecision, SupplierSignal, WorkflowStatus
 from maie.graph.state import WorkflowState, build_initial_state
+from maie.knowledge.retriever import LocalKnowledgeRetriever, build_default_knowledge_retriever
 from maie.observability.telemetry import WorkflowTelemetry
 from maie.providers.registry import ProviderRegistry, build_default_provider_registry
 from maie.routing.policy import PolicyRouter
@@ -142,23 +143,28 @@ class WorkflowEngine:
 def build_default_agents(
     provider_registry: ProviderRegistry,
     tool_registry: ToolRegistry,
+    knowledge_retriever: LocalKnowledgeRetriever | None,
 ) -> dict[AgentTarget, BaseAgent]:
     return {
         AgentTarget.RESEARCH: ResearchAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
+            knowledge_retriever=knowledge_retriever,
         ),
         AgentTarget.RISK_SCORING: RiskScoringAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
+            knowledge_retriever=knowledge_retriever,
         ),
         AgentTarget.REPORT: ReportGenerationAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
+            knowledge_retriever=knowledge_retriever,
         ),
         AgentTarget.HUMAN_REVIEW: HumanReviewAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
+            knowledge_retriever=knowledge_retriever,
         ),
     }
 
@@ -166,11 +172,12 @@ def build_default_agents(
 def build_default_engine(settings: Settings) -> WorkflowEngine:
     provider_registry = build_default_provider_registry(settings)
     tool_registry = build_default_tool_registry()
+    knowledge_retriever = build_default_knowledge_retriever(settings)
     checkpoint_store = JsonFileCheckpointStore(settings.checkpoint_dir)
     telemetry = WorkflowTelemetry(enable_logging=settings.enable_telemetry)
     return WorkflowEngine(
         router=PolicyRouter(),
-        agents=build_default_agents(provider_registry, tool_registry),
+        agents=build_default_agents(provider_registry, tool_registry, knowledge_retriever),
         checkpoint_store=checkpoint_store,
         telemetry=telemetry,
     )
