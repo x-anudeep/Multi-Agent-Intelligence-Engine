@@ -32,6 +32,7 @@ dev = [
 [project.scripts]
 maie = "maie.main:main"
 maie-api = "maie.api.cli:main"
+maie-eval = "maie.evaluation.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

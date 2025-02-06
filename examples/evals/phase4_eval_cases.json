@@ -1,0 +1,65 @@
+{
+  "cases": [
+    {
+      "case_id": "high-risk-sec-filing",
+      "description": "Regulatory and logistics stress should escalate to human review.",
+      "request": {
+        "supplier_name": "Apex Components",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Port congestion delays semiconductor shipments",
+            "summary": "Transit times increased by 10 days across North American routes.",
+            "severity": 4,
+            "region": "North America"
+          },
+          {
+            "source": "sec_filing",
+            "headline": "Supplier disclosed material uncertainty tied to debt covenants",
+            "summary": "Latest filing highlights liquidity pressure and refinancing risk.",
+            "severity": 5,
+            "region": "United States"
+          }
+        ]
+      },
+      "expectation": {
+        "expected_status": "complete",
+        "expected_requires_human_review": true,
+        "expected_min_risk_score": 85,
+        "required_route_targets": [
+          "human_review_agent",
+          "report_generation_agent",
+          "finish"
+        ]
+      }
+    },
+    {
+      "case_id": "moderate-news-only",
+      "description": "Moderate logistics disruption should avoid human review escalation.",
+      "request": {
+        "supplier_name": "Northwind Logistics",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Regional weather delays inbound shipments",
+            "summary": "Temporary storms slowed transport capacity for two days.",
+            "severity": 2,
+            "region": "US Southwest"
+          }
+        ]
+      },
+      "expectation": {
+        "expected_status": "complete",
+        "expected_requires_human_review": false,
+        "expected_max_risk_score": 60,
+        "required_route_targets": [
+          "research_agent",
+          "risk_scoring_agent",
+          "report_generation_agent",
+          "finish"
+        ]
+      }
+    }
+  ]
+}
+
