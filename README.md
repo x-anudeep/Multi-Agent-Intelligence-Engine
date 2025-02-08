@@ -38,6 +38,15 @@ Phase 3 turns the runtime into a delivery-ready service:
 - Docker and Docker Compose assets for local delivery
 - Kubernetes manifests for deployment, service exposure, and autoscaling
 
+## Phase 4 Goal
+
+Phase 4 adds the operational intelligence layer expected in enterprise AI delivery:
+
+- local RAG-style retrieval to ground the research agent in policy and domain guidance
+- governance review with request inspection and response sanitization
+- evaluation harness with reusable dataset-driven scoring
+- Terraform assets for provisioning cluster, registry, and deployment foundations
+
 ## High-Level Architecture
 
 ```text
@@ -121,6 +130,16 @@ Example workflow request:
 ```
 
 Container and deployment assets are available in `Dockerfile`, `docker-compose.yml`, and `deploy/kubernetes/`.
+
+## Evaluation Run
+
+Phase 4 includes an offline evaluation harness and a sample dataset:
+
+```bash
+PYTHONPATH=src python -m maie.evaluation.cli examples/evals/phase4_eval_cases.json
+```
+
+Knowledge documents live under `knowledge/financial-services/`, and Terraform assets live under `infra/terraform/`.
 
 ## Why This Matters For Accenture
 

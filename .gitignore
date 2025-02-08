@@ -1,11 +1,14 @@
 .DS_Store
 .maie/
 .env
+.terraform/
 .pytest_cache/
 .ruff_cache/
 .venv/
 __pycache__/
 *.egg-info/
 *.pyc
+*.tfstate
+*.tfstate.*
 dist/
 htmlcov/
