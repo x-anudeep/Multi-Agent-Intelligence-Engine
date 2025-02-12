@@ -1,0 +1,72 @@
+{
+  "scenarios": [
+    {
+      "id": "semiconductor-liquidity-shock",
+      "title": "Semiconductor Liquidity Shock",
+      "badge": "High Risk",
+      "summary": "Combines port congestion with an SEC liquidity warning to trigger the full escalation path.",
+      "request": {
+        "supplier_name": "Apex Components",
+        "sector": "financial-services",
+        "jurisdiction": "US",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Port congestion delays high-value semiconductor shipments",
+            "summary": "Major logistics bottlenecks are extending shipment timelines by 10 days.",
+            "severity": 4,
+            "region": "North America"
+          },
+          {
+            "source": "sec_filing",
+            "headline": "Supplier disclosed material uncertainty tied to debt covenants",
+            "summary": "Latest filing highlights liquidity pressure and refinancing risk.",
+            "severity": 5,
+            "region": "United States"
+          }
+        ]
+      }
+    },
+    {
+      "id": "weather-disruption-watch",
+      "title": "Weather Disruption Watch",
+      "badge": "Moderate",
+      "summary": "Shows a lower-risk case that still produces a report but should avoid human escalation.",
+      "request": {
+        "supplier_name": "Northwind Logistics",
+        "sector": "financial-services",
+        "jurisdiction": "US",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Regional storms delay inbound hardware shipments",
+            "summary": "Temporary weather issues slowed transport capacity for two days.",
+            "severity": 2,
+            "region": "US Southwest"
+          }
+        ]
+      }
+    },
+    {
+      "id": "governance-sanitization-case",
+      "title": "Governance Sanitization Case",
+      "badge": "Governance",
+      "summary": "Demonstrates policy review and redaction of sensitive contact data in request content.",
+      "request": {
+        "supplier_name": "Apex Components",
+        "sector": "financial-services",
+        "jurisdiction": "US",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Escalate to analyst at jane.doe@example.com",
+            "summary": "Call 602-555-0199 after supplier disruption review.",
+            "severity": 4,
+            "region": "North America"
+          }
+        ]
+      }
+    }
+  ]
+}
+
