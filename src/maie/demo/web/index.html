@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAIE Live Demo</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Phase 5 Live Demo</p>
+          <h1>Multi-Agent Intelligence Engine Control Room</h1>
+          <p class="hero-text">
+            Run a financial-services supply chain risk workflow end-to-end and inspect
+            routing, governance, grounded knowledge, checkpoints, and the final executive brief.
+          </p>
+          <div class="status-row">
+            <div class="status-pill">
+              <span class="status-label">Environment</span>
+              <strong id="health-environment">Loading</strong>
+            </div>
+            <div class="status-pill">
+              <span class="status-label">Governance</span>
+              <strong id="health-governance">Loading</strong>
+            </div>
+            <div class="status-pill">
+              <span class="status-label">Scenario Count</span>
+              <strong id="health-scenarios">0</strong>
+            </div>
+          </div>
+        </div>
+        <aside class="hero-panel reveal delay-1">
+          <div class="hero-panel-card">
+            <span class="card-kicker">Why this matters</span>
+            <h2>Enterprise demo, not a toy</h2>
+            <p>
+              This walkthrough makes the agent architecture legible in under five minutes,
+              which is exactly what a recruiter, interviewer, or client stakeholder needs.
+            </p>
+          </div>
+        </aside>
+      </header>
+
+      <main class="dashboard-grid">
+        <section class="panel scenario-panel reveal delay-1">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Scenario Presets</p>
+              <h2>Choose a walkthrough</h2>
+            </div>
+            <button id="reload-scenarios" class="ghost-button" type="button">Refresh</button>
+          </div>
+          <div id="scenario-list" class="scenario-list"></div>
+        </section>
+
+        <section class="panel request-panel reveal delay-2">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Workflow Request</p>
+              <h2>Editable JSON input</h2>
+            </div>
+            <button id="format-json" class="ghost-button" type="button">Format</button>
+          </div>
+          <textarea id="request-editor" spellcheck="false"></textarea>
+          <div class="action-row">
+            <button id="run-demo" class="primary-button" type="button">Run Workflow</button>
+            <span id="run-status" class="run-status">Ready</span>
+          </div>
+        </section>
+
+        <section class="panel results-panel reveal delay-2">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Workflow Results</p>
+              <h2>Analyst-facing outcome</h2>
+            </div>
+          </div>
+          <div class="metrics-grid">
+            <article class="metric-card">
+              <span>Risk Score</span>
+              <strong id="metric-risk-score">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Disruption Probability</span>
+              <strong id="metric-disruption">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Checkpoints</span>
+              <strong id="metric-checkpoints">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Telemetry Events</span>
+              <strong id="metric-telemetry">-</strong>
+            </article>
+          </div>
+
+          <div class="results-grid">
+            <article class="result-card">
+              <h3>Routing Path</h3>
+              <ul id="routing-path" class="chip-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Governance Review</h3>
+              <div id="governance-status" class="status-badge neutral">Waiting</div>
+              <ul id="governance-findings" class="text-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Knowledge Hits</h3>
+              <ul id="knowledge-hits" class="text-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Checkpoint Timeline</h3>
+              <ul id="checkpoint-list" class="text-list"></ul>
+            </article>
+          </div>
+
+          <div class="report-section">
+            <article class="result-card report-card">
+              <h3>Executive Brief</h3>
+              <pre id="report-preview"></pre>
+            </article>
+            <article class="result-card state-card">
+              <h3>Audit Trail</h3>
+              <ul id="audit-trail" class="text-list"></ul>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/assets/app.js"></script>
+  </body>
+  </html>
+

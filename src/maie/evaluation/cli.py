@@ -23,3 +23,7 @@ async def _run(dataset_path: str) -> object:
     harness = WorkflowEvaluationHarness(service)
     cases = harness.load_cases(dataset_path)
     return await harness.evaluate_cases(cases)
+
+
+if __name__ == "__main__":
+    main()

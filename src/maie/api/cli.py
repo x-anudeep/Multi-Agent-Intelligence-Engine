@@ -20,3 +20,6 @@ def main() -> None:
         workers=settings.api_workers,
     )
 
+
+if __name__ == "__main__":
+    main()

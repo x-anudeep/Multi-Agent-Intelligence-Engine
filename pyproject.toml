@@ -33,12 +33,16 @@ dev = [
 maie = "maie.main:main"
 maie-api = "maie.api.cli:main"
 maie-eval = "maie.evaluation.cli:main"
+maie-demo = "maie.demo.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"maie.demo" = ["web/*.html", "web/*.css", "web/*.js", "data/*.json"]
 
 [tool.ruff]
 line-length = 100

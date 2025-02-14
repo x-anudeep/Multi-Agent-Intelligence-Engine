@@ -1,4 +1,4 @@
-.PHONY: install format lint test run api eval docker-build
+.PHONY: install format lint test run api demo eval docker-build
 
 install:
 	python -m pip install -e ".[dev]"
@@ -17,6 +17,9 @@ run:
 
 api:
 	PYTHONPATH=src python -m maie.api.cli
+
+demo:
+	PYTHONPATH=src python -m maie.demo.cli
 
 eval:
 	PYTHONPATH=src python -m maie.evaluation.cli examples/evals/phase4_eval_cases.json
