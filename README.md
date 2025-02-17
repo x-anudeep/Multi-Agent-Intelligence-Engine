@@ -47,6 +47,15 @@ Phase 4 adds the operational intelligence layer expected in enterprise AI delive
 - evaluation harness with reusable dataset-driven scoring
 - Terraform assets for provisioning cluster, registry, and deployment foundations
 
+## Phase 5 Goal
+
+Phase 5 turns the project into a showable product experience:
+
+- zero-dependency live demo server with a browser-based control room
+- curated scenario presets for recruiter and interview walkthroughs
+- visual workflow results covering routing, governance, knowledge hits, and reports
+- one-command local launch flow for a reliable portfolio demo
+
 ## High-Level Architecture
 
 ```text
@@ -140,6 +149,26 @@ PYTHONPATH=src python -m maie.evaluation.cli examples/evals/phase4_eval_cases.js
 ```
 
 Knowledge documents live under `knowledge/financial-services/`, and Terraform assets live under `infra/terraform/`.
+
+## Live Demo Run
+
+Phase 5 includes a local browser demo that runs without FastAPI, Streamlit, or any frontend framework:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+cp .env.example .env
+PYTHONPATH=src python -m maie.demo.cli
+```
+
+Or with `make`:
+
+```bash
+make demo
+```
+
+Open `http://127.0.0.1:8090` in your browser to use the live demo.
 
 ## Why This Matters For Accenture
 
