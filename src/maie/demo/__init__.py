@@ -1,2 +1,1 @@
-"""Live demo server and assets for portfolio walkthroughs."""
-
+"""Live demo server and browser assets."""

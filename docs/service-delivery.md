@@ -1,10 +1,10 @@
-# Phase 3: Delivery Surface
+# Service Delivery
 
-## Objective
+## Purpose
 
 Package the agentic workflow platform as a service that can be consumed by internal teams, client applications, and deployment pipelines.
 
-## Deliverables
+## Core Components
 
 - Pydantic API contracts for workflow execution and checkpoint retrieval
 - application service that wraps the workflow engine for HTTP delivery
@@ -31,24 +31,9 @@ tests/test_workflow_service.py
 tests/test_delivery_assets.py
 ```
 
-## Suggested Commit Slices
-
-### Commit 1
-
-Add API contracts and the application service layer for workflow execution.
-
-### Commit 2
-
-Add the optional HTTP delivery surface plus Docker assets.
-
-### Commit 3
-
-Add Kubernetes manifests, docs, examples, and delivery-focused tests.
-
-## Phase Exit Criteria
+## Readiness Criteria
 
 - the workflow can be invoked through stable request and response contracts
 - the repo includes a deployable HTTP entrypoint
 - the project can be containerized locally and targeted at Kubernetes
-- the service layer is ready for Phase 4 evaluation, governance, and IaC
-
+- the service layer is ready for governance, evaluation, and infrastructure as code

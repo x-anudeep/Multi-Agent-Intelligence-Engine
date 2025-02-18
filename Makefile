@@ -22,7 +22,7 @@ demo:
 	PYTHONPATH=src python -m maie.demo.cli
 
 eval:
-	PYTHONPATH=src python -m maie.evaluation.cli examples/evals/phase4_eval_cases.json
+	PYTHONPATH=src python -m maie.evaluation.cli examples/evals/workflow_eval_cases.json
 
 docker-build:
 	docker build -t maie:2.0.0 .

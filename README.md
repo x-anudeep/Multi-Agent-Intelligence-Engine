@@ -1,60 +1,20 @@
 # Multi-Agent Intelligence Engine v2.0
 
-Enterprise-grade agentic workflow foundation for financial-services supply chain risk assessment.
+Enterprise-grade agentic workflow platform for financial-services supply chain risk assessment.
 
-## Problem
+## Overview
 
 Banks and financial institutions depend on global supplier networks. When adverse news, SEC filings, and supplier risk signals appear, analysts need a reliable system that can collect evidence, score disruption risk, and generate executive-ready summaries with clear escalation paths.
 
-## Phase 1 Goal
+## Platform Capabilities
 
-Phase 1 establishes the engineering backbone of the platform:
-
-- typed workflow state
-- policy-based routing
-- specialized agent contracts
-- tool registry abstraction
-- local simulation loop
-- optional LangGraph graph builder
-- baseline tests
-
-## Phase 2 Goal
-
-Phase 2 upgrades the foundation into a more enterprise-like runtime:
-
-- multi-provider abstraction layer for OpenAI, Anthropic, and Vertex AI
-- deterministic tool-backed research flow
-- workflow checkpointing for auditability and replay
-- telemetry events for each routing and agent step
-- orchestrated engine that packages state, checkpoints, and execution metadata
-
-## Phase 3 Goal
-
-Phase 3 turns the runtime into a delivery-ready service:
-
-- Pydantic request and response contracts for workflow execution
-- application service layer for API-friendly orchestration
-- optional FastAPI HTTP surface for enterprise integration
-- Docker and Docker Compose assets for local delivery
-- Kubernetes manifests for deployment, service exposure, and autoscaling
-
-## Phase 4 Goal
-
-Phase 4 adds the operational intelligence layer expected in enterprise AI delivery:
-
-- local RAG-style retrieval to ground the research agent in policy and domain guidance
-- governance review with request inspection and response sanitization
-- evaluation harness with reusable dataset-driven scoring
-- Terraform assets for provisioning cluster, registry, and deployment foundations
-
-## Phase 5 Goal
-
-Phase 5 turns the project into a showable product experience:
-
-- zero-dependency live demo server with a browser-based control room
-- curated scenario presets for recruiter and interview walkthroughs
-- visual workflow results covering routing, governance, knowledge hits, and reports
-- one-command local launch flow for a reliable portfolio demo
+- typed workflow state and policy-based routing
+- specialized research, scoring, reporting, and human review agents
+- multi-provider orchestration across OpenAI, Anthropic, and Vertex AI
+- deterministic tool-backed research with checkpointing and telemetry
+- API contracts, container runtime assets, and Kubernetes manifests
+- local knowledge retrieval, governance review, and evaluation harnesses
+- browser-based live demo with scenario presets and workflow inspection
 
 ## High-Level Architecture
 
@@ -74,7 +34,7 @@ Inbound Risk Signals
         |
         +--> Tool Registry
         |
-        +--> Observability / Checkpointing (Phase 2+)
+        +--> Observability / Checkpointing
 ```
 
 ## Project Structure
@@ -104,6 +64,14 @@ PYTHONPATH=src python -m maie
 ```
 
 The local run uses deterministic mock providers so the workflow stays testable without any cloud credentials.
+
+## Documentation
+
+- `docs/foundation.md`
+- `docs/runtime-architecture.md`
+- `docs/service-delivery.md`
+- `docs/governance-evaluation-iac.md`
+- `docs/live-demo.md`
 
 ## API Run
 
@@ -142,17 +110,17 @@ Container and deployment assets are available in `Dockerfile`, `docker-compose.y
 
 ## Evaluation Run
 
-Phase 4 includes an offline evaluation harness and a sample dataset:
+The project includes an offline evaluation harness and a sample dataset:
 
 ```bash
-PYTHONPATH=src python -m maie.evaluation.cli examples/evals/phase4_eval_cases.json
+PYTHONPATH=src python -m maie.evaluation.cli examples/evals/workflow_eval_cases.json
 ```
 
 Knowledge documents live under `knowledge/financial-services/`, and Terraform assets live under `infra/terraform/`.
 
 ## Live Demo Run
 
-Phase 5 includes a local browser demo that runs without FastAPI, Streamlit, or any frontend framework:
+The platform includes a local browser demo that runs without FastAPI, Streamlit, or any frontend framework:
 
 ```bash
 python -m venv .venv
@@ -170,11 +138,11 @@ make demo
 
 Open `http://127.0.0.1:8090` in your browser to use the live demo.
 
-## Why This Matters For Accenture
+## Engineering Principles
 
-This repo is intentionally shaped around the kind of work an AI Native Software Engineer does in enterprise delivery:
+This repository is designed around production-oriented agentic workflow engineering:
 
 - policy-driven agent orchestration instead of linear prompt chaining
 - modular agent and tool abstractions that can support multiple model providers
-- domain-specific workflow state designed for auditability and later evaluation harnesses
-- clear separation between proof-of-concept logic and production extensions like telemetry, checkpointing, and human review
+- domain-specific workflow state designed for auditability and evaluation
+- clear separation between workflow logic, delivery surfaces, and operational controls

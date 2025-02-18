@@ -18,7 +18,7 @@ class WorkflowEvaluationHarnessTests(unittest.IsolatedAsyncioTestCase):
             )
             service = WorkflowApplicationService(settings)
             harness = WorkflowEvaluationHarness(service)
-            cases = harness.load_cases("examples/evals/phase4_eval_cases.json")
+            cases = harness.load_cases("examples/evals/workflow_eval_cases.json")
 
             summary = await harness.evaluate_cases(cases)
 
@@ -29,4 +29,3 @@ class WorkflowEvaluationHarnessTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

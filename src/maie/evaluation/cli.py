@@ -11,7 +11,7 @@ from maie.evaluation.harness import WorkflowEvaluationHarness
 
 def main() -> None:
     dataset_path = (
-        sys.argv[1] if len(sys.argv) > 1 else "examples/evals/phase4_eval_cases.json"
+        sys.argv[1] if len(sys.argv) > 1 else "examples/evals/workflow_eval_cases.json"
     )
     summary = asyncio.run(_run(dataset_path))
     print(json.dumps(summary.model_dump(), indent=2))

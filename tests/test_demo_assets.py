@@ -10,6 +10,7 @@ class DemoAssetsTests(unittest.TestCase):
         self.assertIn("Control Room", html)
         self.assertIn("scenario-list", html)
         self.assertIn("request-editor", html)
+        self.assertIn("Operational Overview", html)
 
     def test_styles_include_custom_theme_variables(self) -> None:
         css = files("maie.demo").joinpath("web", "styles.css").read_text(encoding="utf-8")
@@ -20,4 +21,3 @@ class DemoAssetsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
