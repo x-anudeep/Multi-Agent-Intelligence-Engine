@@ -7,6 +7,7 @@ from typing import Any, TypedDict
 from uuid import uuid4
 
 from maie.domain.models import (
+    ComplianceReview,
     EscalationRecord,
     ModelInvocationRecord,
     RiskAssessment,
@@ -25,6 +26,7 @@ class WorkflowState(TypedDict, total=False):
     research_notes: list[str]
     collected_evidence: list[str]
     risk_assessment: RiskAssessment | None
+    compliance_review: ComplianceReview | None
     draft_report: str | None
     routing_history: list[RoutingDecision]
     escalations: list[EscalationRecord]
@@ -33,8 +35,15 @@ class WorkflowState(TypedDict, total=False):
     knowledge_hits: list[str]
     audit_trail: list[str]
     checkpoint_labels: list[str]
+    snapshot_labels: list[str]
     awaiting_human: bool
     human_decision: str | None
+    human_review_required: bool
+    compliance_required: bool
+    compliance_blocked: bool
+    recovery_actions: list[str]
+    routing_branch_count: int
+    snapshot_count: int
     status: str
     last_decision: RoutingDecision | None
 
@@ -55,6 +64,7 @@ def build_initial_state(
         research_notes=[],
         collected_evidence=[],
         risk_assessment=None,
+        compliance_review=None,
         draft_report=None,
         routing_history=[],
         escalations=[],
@@ -63,8 +73,15 @@ def build_initial_state(
         knowledge_hits=[],
         audit_trail=[],
         checkpoint_labels=[],
+        snapshot_labels=[],
         awaiting_human=False,
         human_decision=None,
+        human_review_required=False,
+        compliance_required=False,
+        compliance_blocked=False,
+        recovery_actions=[],
+        routing_branch_count=0,
+        snapshot_count=0,
         status="new",
         last_decision=None,
     )

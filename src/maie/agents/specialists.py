@@ -3,6 +3,7 @@ from __future__ import annotations
 from maie.agents.base import AgentExecutionResult, BaseAgent
 from maie.domain.models import (
     AgentTarget,
+    ComplianceReview,
     EscalationRecord,
     ModelInvocationRecord,
     ProviderName,
@@ -164,6 +165,11 @@ class RiskScoringAgent(BaseAgent):
             state_updates={
                 "risk_assessment": assessment,
                 "awaiting_human": requires_human_review,
+                "human_review_required": requires_human_review,
+                "compliance_required": (
+                    requires_human_review
+                    or any(signal.source.value == "sec_filing" for signal in signals)
+                ),
                 "model_history": model_history,
                 "audit_trail": audit_trail,
                 "status": (
@@ -173,6 +179,70 @@ class RiskScoringAgent(BaseAgent):
                 ),
             },
             audit_log="Risk scoring agent calculated disruption risk and escalation status.",
+        )
+
+
+class ComplianceReviewAgent(BaseAgent):
+    name = AgentTarget.COMPLIANCE_REVIEW
+    provider = ProviderName.OPENAI
+
+    async def run(self, state: WorkflowState) -> AgentExecutionResult:
+        provider = self._require_provider_registry().get(self.provider)
+        assessment = state.get("risk_assessment")
+        provider_output = await provider.generate_structured(
+            "compliance_review",
+            {
+                "supplier_name": state["supplier_name"],
+                "jurisdiction": state["jurisdiction"],
+                "signals": [signal.to_dict() for signal in state.get("signal_batch", [])],
+                "risk_assessment": assessment.to_dict() if assessment else None,
+                "evidence": state.get("collected_evidence", []),
+            },
+        )
+        review_payload = provider_output.structured_content
+        review = ComplianceReview(
+            status=str(review_payload["status"]),
+            summary=str(review_payload["summary"]),
+            obligations=list(review_payload["obligations"]),
+            mitigation_plan=list(review_payload["mitigation_plan"]),
+            requires_human_signoff=bool(review_payload["requires_human_signoff"]),
+            blocking_findings=list(review_payload["blocking_findings"]),
+        )
+        model_history = [
+            *state.get("model_history", []),
+            ModelInvocationRecord(
+                provider=self.provider,
+                task_name="compliance_review",
+                summary=str(
+                    provider_output.metadata.get(
+                        "summary",
+                        "Compliance provider validated escalation and mitigation obligations.",
+                    )
+                ),
+            ),
+        ]
+        audit_trail = [
+            *state.get("audit_trail", []),
+            "Compliance review agent validated obligations and mitigation actions.",
+        ]
+        return AgentExecutionResult(
+            agent_name=self.name,
+            state_updates={
+                "compliance_review": review,
+                "compliance_required": True,
+                "compliance_blocked": bool(review.blocking_findings),
+                "awaiting_human": bool(review.requires_human_signoff),
+                "human_review_required": bool(review.requires_human_signoff),
+                "recovery_actions": review.mitigation_plan,
+                "model_history": model_history,
+                "audit_trail": audit_trail,
+                "status": (
+                    WorkflowStatus.WAITING_FOR_HUMAN.value
+                    if review.requires_human_signoff
+                    else WorkflowStatus.COMPLIANCE_REVIEW.value
+                ),
+            },
+            audit_log="Compliance review agent validated obligations and mitigation actions.",
         )
 
 
@@ -198,6 +268,8 @@ class HumanReviewAgent(BaseAgent):
                 "escalations": escalations,
                 "awaiting_human": False,
                 "human_decision": "approved_for_reporting",
+                "human_review_required": False,
+                "compliance_blocked": False,
                 "audit_trail": [
                     *state.get("audit_trail", []),
                     "Human review agent recorded an escalation and approved downstream reporting.",
@@ -214,14 +286,17 @@ class ReportGenerationAgent(BaseAgent):
 
     async def run(self, state: WorkflowState) -> AgentExecutionResult:
         assessment = state.get("risk_assessment")
+        compliance_review = state.get("compliance_review")
         provider = self._require_provider_registry().get(self.provider)
         provider_output = await provider.generate_text(
             "report_generation",
             {
                 "supplier_name": state["supplier_name"],
                 "risk_assessment": assessment.to_dict() if assessment else None,
+                "compliance_review": compliance_review.to_dict() if compliance_review else None,
                 "research_notes": state.get("research_notes", []),
                 "escalations": [item.to_dict() for item in state.get("escalations", [])],
+                "recovery_actions": state.get("recovery_actions", []),
             },
         )
         report = provider_output.content

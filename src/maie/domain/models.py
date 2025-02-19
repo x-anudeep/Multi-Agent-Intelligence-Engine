@@ -22,6 +22,7 @@ class ProviderName(StrEnum):
 class AgentTarget(StrEnum):
     RESEARCH = "research_agent"
     RISK_SCORING = "risk_scoring_agent"
+    COMPLIANCE_REVIEW = "compliance_review_agent"
     REPORT = "report_generation_agent"
     HUMAN_REVIEW = "human_review_agent"
     FINISH = "finish"
@@ -31,9 +32,11 @@ class WorkflowStatus(StrEnum):
     NEW = "new"
     RESEARCHING = "researching"
     SCORING = "scoring"
+    COMPLIANCE_REVIEW = "compliance_review"
     REPORTING = "reporting"
     WAITING_FOR_HUMAN = "waiting_for_human"
     COMPLETE = "complete"
+    BLOCKED = "blocked"
 
 
 @dataclass(slots=True)
@@ -117,3 +120,16 @@ class ModelInvocationRecord:
             "task_name": self.task_name,
             "summary": self.summary,
         }
+
+
+@dataclass(slots=True)
+class ComplianceReview:
+    status: str
+    summary: str
+    obligations: list[str]
+    mitigation_plan: list[str]
+    requires_human_signoff: bool
+    blocking_findings: list[str]
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)

@@ -29,6 +29,8 @@ class MockProvider(BaseModelProvider):
         if task_name == "report_generation":
             supplier_name = str(context["supplier_name"])
             assessment = context.get("risk_assessment") or {}
+            compliance_review = context.get("compliance_review") or {}
+            recovery_actions = list(context.get("recovery_actions", []))
             actions = assessment.get("recommended_actions", [])
             content = "\n".join(
                 [
@@ -40,8 +42,14 @@ class MockProvider(BaseModelProvider):
                     "## Summary",
                     str(assessment.get("explanation", "No risk assessment available.")),
                     "",
+                    "## Compliance",
+                    str(compliance_review.get("summary", "No compliance review required.")),
+                    "",
                     "## Recommended Actions",
                     *[f"- {action}" for action in actions],
+                    "",
+                    "## Recovery Plan",
+                    *[f"- {action}" for action in recovery_actions],
                 ]
             )
             return ModelOutput(
@@ -62,6 +70,43 @@ class MockProvider(BaseModelProvider):
         )
 
     async def generate_structured(self, task_name: str, context: dict[str, Any]) -> ModelOutput:
+        if task_name == "compliance_review":
+            signals = list(context.get("signals", []))
+            risk_assessment = context.get("risk_assessment") or {}
+            contains_sec_filing = any(signal["source"] == SignalSource.SEC_FILING.value for signal in signals)
+            high_risk = int(risk_assessment.get("overall_risk_score", 0)) >= 80
+            requires_human_signoff = contains_sec_filing or high_risk
+            blocking_findings = []
+            if contains_sec_filing:
+                blocking_findings.append("Regulatory filing requires treasury and compliance signoff.")
+            structured_content = {
+                "status": "approved_with_controls" if not blocking_findings else "conditional_approval",
+                "summary": (
+                    "Compliance review validated disclosure, routing, and mitigation obligations."
+                ),
+                "obligations": [
+                    "Notify risk operations when regulatory filings affect supplier continuity.",
+                    "Document alternate supplier options for critical regions.",
+                ],
+                "mitigation_plan": [
+                    "Activate alternate supplier shortlist within 24 hours.",
+                    "Open treasury and procurement war room for high-risk suppliers.",
+                    "Require daily checkpoint review until risk score drops below threshold.",
+                ],
+                "requires_human_signoff": requires_human_signoff,
+                "blocking_findings": blocking_findings,
+            }
+            return ModelOutput(
+                provider=self.name,
+                task_name=task_name,
+                content="Structured compliance review complete.",
+                structured_content=structured_content,
+                metadata={
+                    "model_id": self.model_id,
+                    "summary": "Mock provider returned a structured compliance review.",
+                },
+            )
+
         if task_name != "risk_assessment":
             return ModelOutput(
                 provider=self.name,
@@ -109,4 +154,3 @@ class MockProvider(BaseModelProvider):
                 "summary": "Mock provider returned a structured risk assessment.",
             },
         )
-

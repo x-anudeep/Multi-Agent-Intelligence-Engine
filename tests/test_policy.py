@@ -27,12 +27,14 @@ class PolicyRouterTests(unittest.TestCase):
     def test_routes_to_risk_scoring_after_research(self) -> None:
         state = build_initial_state("Apex Components", [self.signal])
         state["research_notes"] = ["Research complete"]
+        state["collected_evidence"] = ["Research evidence"]
         decision = self.router.route(state)
         self.assertEqual(decision.target_agent, AgentTarget.RISK_SCORING)
 
     def test_routes_to_human_review_when_policy_is_triggered(self) -> None:
         state = build_initial_state("Apex Components", [self.signal])
         state["research_notes"] = ["Research complete"]
+        state["collected_evidence"] = ["Research evidence"]
         state["risk_assessment"] = RiskAssessment(
             supplier_name="Apex Components",
             overall_risk_score=90,
@@ -45,9 +47,27 @@ class PolicyRouterTests(unittest.TestCase):
         decision = self.router.route(state)
         self.assertEqual(decision.target_agent, AgentTarget.HUMAN_REVIEW)
 
+    def test_routes_to_compliance_review_for_regulatory_signals(self) -> None:
+        state = build_initial_state("Apex Components", [self.signal])
+        state["research_notes"] = ["Research complete"]
+        state["collected_evidence"] = ["Factory outage evidence"]
+        state["risk_assessment"] = RiskAssessment(
+            supplier_name="Apex Components",
+            overall_risk_score=72,
+            disruption_probability=0.72,
+            explanation="Elevated risk.",
+            evidence=["News signal"],
+            recommended_actions=["Review controls"],
+            requires_human_review=False,
+        )
+        state["jurisdiction"] = "DE"
+        decision = self.router.route(state)
+        self.assertEqual(decision.target_agent, AgentTarget.COMPLIANCE_REVIEW)
+
     def test_routes_to_report_when_scoring_is_complete(self) -> None:
         state = build_initial_state("Apex Components", [self.signal])
         state["research_notes"] = ["Research complete"]
+        state["collected_evidence"] = ["News signal"]
         state["risk_assessment"] = RiskAssessment(
             supplier_name="Apex Components",
             overall_risk_score=60,
@@ -60,7 +80,23 @@ class PolicyRouterTests(unittest.TestCase):
         decision = self.router.route(state)
         self.assertEqual(decision.target_agent, AgentTarget.REPORT)
 
+    def test_routes_back_to_human_review_when_compliance_blocks_reporting(self) -> None:
+        state = build_initial_state("Apex Components", [self.signal])
+        state["research_notes"] = ["Research complete"]
+        state["collected_evidence"] = ["News signal"]
+        state["risk_assessment"] = RiskAssessment(
+            supplier_name="Apex Components",
+            overall_risk_score=88,
+            disruption_probability=0.88,
+            explanation="High risk.",
+            evidence=["News signal"],
+            recommended_actions=["Escalate"],
+            requires_human_review=False,
+        )
+        state["compliance_blocked"] = True
+        decision = self.router.route(state)
+        self.assertEqual(decision.target_agent, AgentTarget.HUMAN_REVIEW)
+
 
 if __name__ == "__main__":
     unittest.main()
-

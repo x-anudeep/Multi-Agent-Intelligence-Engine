@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from maie.agents.base import BaseAgent
 from maie.agents.specialists import (
+    ComplianceReviewAgent,
     HumanReviewAgent,
     ReportGenerationAgent,
     ResearchAgent,
@@ -35,6 +36,10 @@ async def run_local_simulation(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
         ),
+        AgentTarget.COMPLIANCE_REVIEW: ComplianceReviewAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
         AgentTarget.REPORT: ReportGenerationAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
@@ -62,3 +67,4 @@ def _record_decision(state: WorkflowState, decision: RoutingDecision) -> None:
     history = [*state.get("routing_history", []), decision]
     state["last_decision"] = decision
     state["routing_history"] = history
+    state["routing_branch_count"] = len({item.reason for item in history})

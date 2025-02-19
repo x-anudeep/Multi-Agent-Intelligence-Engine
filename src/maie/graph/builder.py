@@ -5,6 +5,7 @@ from typing import Any
 
 from maie.agents.base import BaseAgent
 from maie.agents.specialists import (
+    ComplianceReviewAgent,
     HumanReviewAgent,
     ReportGenerationAgent,
     ResearchAgent,
@@ -44,6 +45,10 @@ def build_graph() -> Any:
             provider_registry=provider_registry,
             tool_registry=tool_registry,
         ),
+        AgentTarget.COMPLIANCE_REVIEW: ComplianceReviewAgent(
+            provider_registry=provider_registry,
+            tool_registry=tool_registry,
+        ),
         AgentTarget.REPORT: ReportGenerationAgent(
             provider_registry=provider_registry,
             tool_registry=tool_registry,
@@ -68,6 +73,7 @@ def build_graph() -> Any:
         {
             AgentTarget.RESEARCH.value: AgentTarget.RESEARCH.value,
             AgentTarget.RISK_SCORING.value: AgentTarget.RISK_SCORING.value,
+            AgentTarget.COMPLIANCE_REVIEW.value: AgentTarget.COMPLIANCE_REVIEW.value,
             AgentTarget.REPORT.value: AgentTarget.REPORT.value,
             AgentTarget.HUMAN_REVIEW.value: AgentTarget.HUMAN_REVIEW.value,
             AgentTarget.FINISH.value: END,
