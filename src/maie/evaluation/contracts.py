@@ -39,3 +39,24 @@ class EvaluationSummary(BaseModel):
     average_observed_risk_score: float
     results: list[EvaluationCaseResult]
 
+
+class BenchmarkCaseResult(BaseModel):
+    case_id: str
+    passed: bool
+    latency_ms: float
+    checkpoint_count: int
+    snapshot_count: int
+    routing_branch_count: int
+    telemetry_event_count: int
+
+
+class BenchmarkSummary(BaseModel):
+    total_cases: int
+    pass_rate: float
+    average_latency_ms: float
+    p95_latency_ms: float
+    total_checkpoints: int
+    total_snapshots: int
+    total_telemetry_events: int
+    max_routing_branch_count: int
+    results: list[BenchmarkCaseResult]

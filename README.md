@@ -9,9 +9,9 @@ Banks and financial institutions depend on global supplier networks. When advers
 ## Platform Capabilities
 
 - typed workflow state and policy-based routing
-- specialized research, scoring, reporting, and human review agents
+- specialized research, scoring, compliance, reporting, and human review agents
 - multi-provider orchestration across OpenAI, Anthropic, and Vertex AI
-- deterministic tool-backed research with checkpointing and telemetry
+- deterministic tool-backed research with relational checkpointing, runtime snapshots, and telemetry
 - API contracts, container runtime assets, and Kubernetes manifests
 - local knowledge retrieval, governance review, and evaluation harnesses
 - browser-based live demo with scenario presets and workflow inspection
@@ -22,13 +22,14 @@ Banks and financial institutions depend on global supplier networks. When advers
 Inbound Risk Signals
         |
         v
-  Workflow State -----------------------------+
+  Workflow State / Runtime Snapshots ---------+
         |                                     |
         v                                     |
   Policy Router ----> Agent Selection         |
         |              |                      |
         |              +--> Research Agent ---+
         |              +--> Risk Scoring Agent
+        |              +--> Compliance Review Agent
         |              +--> Report Agent
         |              +--> Human Review Agent
         |
@@ -118,6 +119,12 @@ PYTHONPATH=src python -m maie.evaluation.cli examples/evals/workflow_eval_cases.
 
 Knowledge documents live under `knowledge/financial-services/`, and Terraform assets live under `infra/terraform/`.
 
+Benchmark mode measures pass rate, latency, checkpoint volume, snapshot volume, and branch coverage:
+
+```bash
+make benchmark
+```
+
 ## Live Demo Run
 
 The platform includes a local browser demo that runs without FastAPI, Streamlit, or any frontend framework:
@@ -146,3 +153,4 @@ This repository is designed around production-oriented agentic workflow engineer
 - modular agent and tool abstractions that can support multiple model providers
 - domain-specific workflow state designed for auditability and evaluation
 - clear separation between workflow logic, delivery surfaces, and operational controls
+- Postgres-ready checkpoint persistence with SQLite fallback and Redis-ready runtime snapshots

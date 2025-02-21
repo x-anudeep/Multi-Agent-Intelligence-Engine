@@ -1,4 +1,4 @@
-.PHONY: install format lint test run api demo eval docker-build
+.PHONY: install format lint test run api demo eval benchmark docker-build
 
 install:
 	python -m pip install -e ".[dev]"
@@ -23,6 +23,9 @@ demo:
 
 eval:
 	PYTHONPATH=src python -m maie.evaluation.cli examples/evals/workflow_eval_cases.json
+
+benchmark:
+	PYTHONPATH=src python -m maie.evaluation.cli --benchmark examples/evals/benchmark_cases.json
 
 docker-build:
 	docker build -t maie:2.0.0 .

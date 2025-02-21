@@ -18,6 +18,7 @@ dependencies = [
   "opentelemetry-sdk",
   "pydantic",
   "pydantic-settings",
+  "psycopg[binary]",
   "redis",
   "structlog",
   "uvicorn",

@@ -13,9 +13,36 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 8080
       CHECKPOINT_DIR: /app/.maie/checkpoints
+      CHECKPOINT_BACKEND: postgres
+      STATE_BACKEND: redis
       USE_MOCK_PROVIDERS: "true"
+      REDIS_URL: redis://redis:6379/0
+      POSTGRES_URL: postgresql://postgres:postgres@postgres:5432/maie
     ports:
       - "8080:8080"
     volumes:
       - ./.maie:/app/.maie
+    depends_on:
+      - redis
+      - postgres
 
+  redis:
+    image: redis:7-alpine
+    container_name: maie-redis
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: maie-postgres
+    environment:
+      POSTGRES_DB: maie
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -1,0 +1,99 @@
+{
+  "cases": [
+    {
+      "case_id": "high-risk-sec-filing",
+      "description": "Regulatory and logistics stress should escalate to human review and compliance review.",
+      "request": {
+        "supplier_name": "Apex Components",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Port congestion delays semiconductor shipments",
+            "summary": "Transit times increased by 10 days across North American routes.",
+            "severity": 4,
+            "region": "North America"
+          },
+          {
+            "source": "sec_filing",
+            "headline": "Supplier disclosed material uncertainty tied to debt covenants",
+            "summary": "Latest filing highlights liquidity pressure and refinancing risk.",
+            "severity": 5,
+            "region": "United States"
+          }
+        ]
+      },
+      "expectation": {
+        "expected_status": "complete",
+        "expected_requires_human_review": true,
+        "expected_min_risk_score": 85,
+        "required_route_targets": [
+          "compliance_review_agent",
+          "human_review_agent",
+          "report_generation_agent",
+          "finish"
+        ]
+      }
+    },
+    {
+      "case_id": "moderate-news-only",
+      "description": "Moderate logistics disruption should avoid human review escalation.",
+      "request": {
+        "supplier_name": "Northwind Logistics",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Regional weather delays inbound shipments",
+            "summary": "Temporary storms slowed transport capacity for two days.",
+            "severity": 2,
+            "region": "US Southwest"
+          }
+        ]
+      },
+      "expectation": {
+        "expected_status": "complete",
+        "expected_requires_human_review": false,
+        "expected_max_risk_score": 60,
+        "required_route_targets": [
+          "research_agent",
+          "risk_scoring_agent",
+          "report_generation_agent",
+          "finish"
+        ]
+      }
+    },
+    {
+      "case_id": "internal-alert-cross-border",
+      "description": "Cross-border internal alerts should trigger compliance review before reporting.",
+      "request": {
+        "supplier_name": "Helios Compute",
+        "jurisdiction": "DE",
+        "signals": [
+          {
+            "source": "internal_alert",
+            "headline": "Critical supplier SLA breach in European processing hub",
+            "summary": "Internal monitoring flagged recurring delivery misses for regulated workloads.",
+            "severity": 4,
+            "region": "Europe"
+          },
+          {
+            "source": "supplier_profile",
+            "headline": "Single-source dependency remains unresolved",
+            "summary": "The supplier still owns the only qualified production path for a priority service.",
+            "severity": 3,
+            "region": "Europe"
+          }
+        ]
+      },
+      "expectation": {
+        "expected_status": "complete",
+        "expected_requires_human_review": false,
+        "expected_min_risk_score": 70,
+        "required_route_targets": [
+          "compliance_review_agent",
+          "report_generation_agent",
+          "finish"
+        ]
+      }
+    }
+  ]
+}
