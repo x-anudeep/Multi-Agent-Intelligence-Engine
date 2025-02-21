@@ -86,11 +86,14 @@ class WorkflowApplicationService:
             workflow_id=state["workflow_id"],
             status=state["status"],
             checkpoint_count=len(artifacts.checkpoint_records),
+            snapshot_count=len(artifacts.snapshot_records),
             checkpoint_location=artifacts.checkpoint_location,
             telemetry_event_count=artifacts.telemetry.summarize()["event_count"],
+            average_event_duration_ms=artifacts.telemetry.summarize()["average_duration_ms"],
             routing_targets=[
                 decision.target_agent.value for decision in state.get("routing_history", [])
             ],
+            routing_branch_count=state.get("routing_branch_count", 0),
             tool_runs=len(state.get("tool_history", [])),
             model_invocations=[
                 record.provider for record in state.get("model_history", [])

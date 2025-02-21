@@ -36,12 +36,15 @@ class WorkflowEngineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(artifacts.state["status"], "complete")
         self.assertGreaterEqual(len(artifacts.checkpoint_records), 5)
+        self.assertGreaterEqual(len(artifacts.snapshot_records), len(artifacts.checkpoint_records))
         self.assertGreaterEqual(artifacts.telemetry.summarize()["event_count"], 5)
         self.assertTrue(artifacts.state["tool_history"])
         self.assertTrue(artifacts.state["model_history"])
         self.assertTrue(artifacts.state["checkpoint_labels"])
+        self.assertTrue(artifacts.state["snapshot_labels"])
+        self.assertGreaterEqual(artifacts.state["snapshot_count"], len(artifacts.snapshot_records))
+        self.assertIn("compliance_review_agent", [item.target_agent.value for item in artifacts.state["routing_history"]])
 
 
 if __name__ == "__main__":
     unittest.main()
-

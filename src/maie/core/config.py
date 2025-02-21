@@ -25,6 +25,8 @@ class Settings:
     redis_url: str = "redis://localhost:6379/0"
     postgres_url: str = "postgresql://postgres:postgres@localhost:5432/maie"
     checkpoint_dir: str = ".maie/checkpoints"
+    checkpoint_backend: str = "sqlite"
+    state_backend: str = "memory"
     use_mock_providers: bool = True
     api_host: str = "0.0.0.0"
     api_port: int = 8080
@@ -57,6 +59,8 @@ class Settings:
                 "postgresql://postgres:postgres@localhost:5432/maie",
             ),
             checkpoint_dir=os.getenv("CHECKPOINT_DIR", ".maie/checkpoints"),
+            checkpoint_backend=os.getenv("CHECKPOINT_BACKEND", "sqlite"),
+            state_backend=os.getenv("STATE_BACKEND", "memory"),
             use_mock_providers=_as_bool(os.getenv("USE_MOCK_PROVIDERS"), True),
             api_host=os.getenv("API_HOST", "0.0.0.0"),
             api_port=_as_int(os.getenv("API_PORT"), 8080),

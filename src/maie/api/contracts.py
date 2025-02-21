@@ -61,9 +61,12 @@ class WorkflowExecutionResponse(BaseModel):
     workflow_id: str
     status: str
     checkpoint_count: int
+    snapshot_count: int
     checkpoint_location: str | None
     telemetry_event_count: int
+    average_event_duration_ms: float
     routing_targets: list[str]
+    routing_branch_count: int
     tool_runs: int
     model_invocations: list[ProviderName]
     overall_risk_score: int | None
