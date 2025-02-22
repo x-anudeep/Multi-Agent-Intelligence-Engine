@@ -36,7 +36,10 @@ def create_app(
     app = FastAPI(
         title="Multi-Agent Intelligence Engine",
         version=resolved_settings.app_version,
-        description="Enterprise supply chain risk workflow service.",
+        description=(
+            "Enterprise supply chain risk workflow service with routing, "
+            "snapshots, relational checkpointing, and runtime telemetry metrics."
+        ),
     )
 
     @app.get("/health", response_model=HealthResponse)
@@ -63,4 +66,3 @@ def create_app(
         return response
 
     return app
-

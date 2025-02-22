@@ -71,6 +71,10 @@ class WorkflowApplicationService:
             status="ok",
             provider_mode="mock" if self.settings.use_mock_providers else "live",
             governance_enabled=self.settings.enable_governance,
+            checkpoint_backend=self.settings.checkpoint_backend,
+            state_backend=self.settings.state_backend,
+            telemetry_enabled=self.settings.enable_telemetry,
+            agent_count=5,
         )
 
     def _build_execution_response(

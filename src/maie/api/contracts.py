@@ -43,6 +43,10 @@ class HealthResponse(BaseModel):
     status: str
     provider_mode: str
     governance_enabled: bool
+    checkpoint_backend: str
+    state_backend: str
+    telemetry_enabled: bool
+    agent_count: int
 
 
 class CheckpointResponse(BaseModel):

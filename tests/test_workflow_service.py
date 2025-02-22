@@ -49,6 +49,8 @@ class WorkflowApplicationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertGreaterEqual(history.checkpoint_count, response.checkpoint_count)
         self.assertIn("finish", response.routing_targets)
         self.assertIn("compliance_review_agent", response.routing_targets)
+        self.assertGreaterEqual(response.routing_branch_count, 4)
+        self.assertGreaterEqual(response.average_event_duration_ms, 0)
         self.assertTrue(response.report_preview)
 
     def test_app_factory_behaves_consistently_with_fastapi_availability(self) -> None:
