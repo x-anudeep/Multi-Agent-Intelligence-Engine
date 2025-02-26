@@ -8,7 +8,7 @@ Wrap the platform in a local browser experience that makes workflow execution ea
 
 - standard-library live demo server with browser UI
 - curated scenario presets
-- analyst-style dashboard for routing, governance, retrieval, and reporting
+- analyst-style dashboard for routing, governance, compliance posture, runtime persistence, latency, retrieval, and reporting
 - one-command launch path and user-facing documentation
 
 ## File Layout
@@ -31,4 +31,5 @@ tests/test_demo_server.py
 - the project can be demonstrated from a browser without external web frameworks
 - scenario presets cover high-risk, moderate-risk, and governance cases
 - the demo makes routing, governance, and reporting visible in one screen
+- the demo exposes runtime metrics such as snapshots, latency, branch coverage, and backend modes
 - the launch commands are reliable enough for repeated local runs and demos

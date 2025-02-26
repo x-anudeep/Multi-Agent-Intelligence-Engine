@@ -15,6 +15,7 @@ Banks and financial institutions depend on global supplier networks. When advers
 - API contracts, container runtime assets, and Kubernetes manifests
 - local knowledge retrieval, governance review, and evaluation harnesses
 - browser-based live demo with scenario presets and workflow inspection
+- browser-based live demo with scenario presets, runtime metrics, and workflow inspection
 
 ## High-Level Architecture
 
@@ -144,6 +145,14 @@ make demo
 ```
 
 Open `http://127.0.0.1:8090` in your browser to use the live demo.
+
+The live dashboard exposes:
+
+- routing path and branch coverage
+- checkpoints and runtime snapshots
+- telemetry volume and average event duration
+- compliance posture, governance findings, and recovery actions
+- model pipeline activity and the final executive brief
 
 ## Engineering Principles
 
