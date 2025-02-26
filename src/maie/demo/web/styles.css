@@ -272,6 +272,7 @@ h3 {
 
 .metric-card {
   padding: 18px;
+  min-height: 132px;
 }
 
 .metric-card span {
@@ -284,8 +285,9 @@ h3 {
 }
 
 .metric-card strong {
-  font-size: 2rem;
+  font-size: 1.78rem;
   color: var(--ink);
+  line-height: 1.1;
 }
 
 .results-grid {
@@ -294,6 +296,11 @@ h3 {
 
 .result-card {
   padding: 18px;
+}
+
+.runtime-profile li,
+.compliance-details li {
+  font-size: 0.96rem;
 }
 
 .chip-list,
@@ -395,6 +402,7 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .status-row,
   .metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -419,4 +427,3 @@ h3 {
     min-height: 340px;
   }
 }
-

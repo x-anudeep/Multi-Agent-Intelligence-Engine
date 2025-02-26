@@ -11,12 +11,16 @@ class DemoAssetsTests(unittest.TestCase):
         self.assertIn("scenario-list", html)
         self.assertIn("request-editor", html)
         self.assertIn("Operational Overview", html)
+        self.assertIn("metric-snapshots", html)
+        self.assertIn("Runtime Profile", html)
+        self.assertIn("Compliance Review", html)
 
     def test_styles_include_custom_theme_variables(self) -> None:
         css = files("maie.demo").joinpath("web", "styles.css").read_text(encoding="utf-8")
         self.assertIn("--accent", css)
         self.assertIn("radial-gradient", css)
         self.assertIn("@keyframes rise", css)
+        self.assertIn(".runtime-profile", css)
 
 
 if __name__ == "__main__":

@@ -24,8 +24,10 @@ class LiveDemoServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["workflow"]["status"], "complete")
         self.assertTrue(result["dashboard"]["routing_targets"])
         self.assertIn("checkpoint_count", result["dashboard"])
+        self.assertIn("snapshot_count", result["dashboard"])
+        self.assertIn("average_event_duration_ms", result["dashboard"])
+        self.assertIn("compliance_review", result["dashboard"])
 
 
 if __name__ == "__main__":
     unittest.main()
-

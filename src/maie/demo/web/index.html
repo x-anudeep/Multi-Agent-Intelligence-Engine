@@ -26,6 +26,18 @@
               <strong id="health-governance">Loading</strong>
             </div>
             <div class="status-pill">
+              <span class="status-label">Checkpoint Backend</span>
+              <strong id="health-checkpoint-backend">Loading</strong>
+            </div>
+            <div class="status-pill">
+              <span class="status-label">State Backend</span>
+              <strong id="health-state-backend">Loading</strong>
+            </div>
+            <div class="status-pill">
+              <span class="status-label">Agent Count</span>
+              <strong id="health-agents">0</strong>
+            </div>
+            <div class="status-pill">
               <span class="status-label">Scenario Count</span>
               <strong id="health-scenarios">0</strong>
             </div>
@@ -34,9 +46,9 @@
         <aside class="hero-panel reveal delay-1">
           <div class="hero-panel-card">
             <span class="card-kicker">Operational Overview</span>
-            <h2>Enterprise workflow orchestration</h2>
+            <h2>Enterprise workflow orchestration with runtime evidence</h2>
             <p>
-              Inspect workflow execution, policy controls, grounded knowledge, and analyst-facing output in a single operational view.
+              Inspect workflow execution, policy controls, runtime persistence, latency metrics, grounded knowledge, and analyst-facing output in a single operational view.
             </p>
           </div>
         </aside>
@@ -90,8 +102,28 @@
               <strong id="metric-checkpoints">-</strong>
             </article>
             <article class="metric-card">
+              <span>Snapshots</span>
+              <strong id="metric-snapshots">-</strong>
+            </article>
+            <article class="metric-card">
               <span>Telemetry Events</span>
               <strong id="metric-telemetry">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Avg Step Latency</span>
+              <strong id="metric-latency">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Routing Branches</span>
+              <strong id="metric-branches">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Tool Runs</span>
+              <strong id="metric-tools">-</strong>
+            </article>
+            <article class="metric-card">
+              <span>Workflow Status</span>
+              <strong id="metric-status">-</strong>
             </article>
           </div>
 
@@ -106,12 +138,29 @@
               <ul id="governance-findings" class="text-list"></ul>
             </article>
             <article class="result-card">
+              <h3>Runtime Profile</h3>
+              <ul id="runtime-profile" class="text-list runtime-profile"></ul>
+            </article>
+            <article class="result-card">
               <h3>Knowledge Hits</h3>
               <ul id="knowledge-hits" class="text-list"></ul>
             </article>
             <article class="result-card">
               <h3>Checkpoint Timeline</h3>
               <ul id="checkpoint-list" class="text-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Snapshot Timeline</h3>
+              <ul id="snapshot-list" class="text-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Model Pipeline</h3>
+              <ul id="model-pipeline" class="chip-list"></ul>
+            </article>
+            <article class="result-card">
+              <h3>Compliance Review</h3>
+              <div id="compliance-status" class="status-badge neutral">Waiting</div>
+              <ul id="compliance-details" class="text-list compliance-details"></ul>
             </article>
           </div>
 
