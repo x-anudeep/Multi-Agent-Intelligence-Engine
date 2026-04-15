@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-intelligence-engine"
+version = "2.0.0"
+description = "Enterprise multi-agent intelligence engine for supply chain risk workflows."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "anthropic",
+  "google-cloud-aiplatform",
+  "langgraph",
+  "openai",
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "pydantic",
+  "pydantic-settings",
+  "redis",
+  "structlog",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+]
+
+[project.scripts]
+maie = "maie.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
