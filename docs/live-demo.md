@@ -8,6 +8,7 @@ Wrap the platform in a local browser experience that makes workflow execution ea
 
 - standard-library live demo server with browser UI
 - curated scenario presets
+- plain-English scenario drafting into workflow JSON
 - analyst-style dashboard for routing, governance, compliance posture, runtime persistence, latency, retrieval, and reporting
 - one-command launch path and user-facing documentation
 

@@ -66,7 +66,87 @@
           }
         ]
       }
+    },
+    {
+      "id": "cross-border-compliance-alert",
+      "title": "Cross-Border Compliance Alert",
+      "badge": "Compliance",
+      "summary": "Shows a regulated cross-border supplier incident that should trigger compliance review before reporting.",
+      "request": {
+        "supplier_name": "Helios Compute",
+        "sector": "financial-services",
+        "jurisdiction": "DE",
+        "signals": [
+          {
+            "source": "internal_alert",
+            "headline": "Critical supplier SLA breach detected in European processing hub",
+            "summary": "Internal monitoring flagged repeated delivery misses for regulated workloads.",
+            "severity": 4,
+            "region": "Europe"
+          },
+          {
+            "source": "supplier_profile",
+            "headline": "Single-source dependency remains unresolved",
+            "summary": "The supplier still owns the only qualified production path for a priority service.",
+            "severity": 3,
+            "region": "Europe"
+          }
+        ]
+      }
+    },
+    {
+      "id": "retail-inventory-recovery",
+      "title": "Retail Inventory Recovery",
+      "badge": "Recovery",
+      "summary": "Demonstrates a moderate disruption that should generate mitigation steps without human escalation.",
+      "request": {
+        "supplier_name": "Brightline Apparel",
+        "sector": "retail",
+        "jurisdiction": "US",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "West coast warehouse delays seasonal inventory transfer",
+            "summary": "A temporary labor slowdown is delaying final-mile distribution by three days.",
+            "severity": 3,
+            "region": "United States"
+          },
+          {
+            "source": "supplier_profile",
+            "headline": "Backup supplier capacity remains available",
+            "summary": "Alternate distribution nodes can absorb part of the delayed demand if activated within 24 hours.",
+            "severity": 2,
+            "region": "United States"
+          }
+        ]
+      }
+    },
+    {
+      "id": "healthcare-device-outage",
+      "title": "Healthcare Device Outage",
+      "badge": "Critical",
+      "summary": "Covers a high-severity healthcare device disruption combining outage news and operational alerts.",
+      "request": {
+        "supplier_name": "MedAxis Devices",
+        "sector": "healthcare",
+        "jurisdiction": "US",
+        "signals": [
+          {
+            "source": "news",
+            "headline": "Specialty device manufacturer halts production after systems outage",
+            "summary": "Production stopped for critical monitoring hardware while recovery work continues.",
+            "severity": 5,
+            "region": "North America"
+          },
+          {
+            "source": "internal_alert",
+            "headline": "Hospital deployment team reports replacement inventory at risk",
+            "summary": "Current stock levels may fall below service targets within 72 hours.",
+            "severity": 4,
+            "region": "United States"
+          }
+        ]
+      }
     }
   ]
 }
-

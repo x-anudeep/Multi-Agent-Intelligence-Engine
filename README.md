@@ -153,6 +153,7 @@ The live dashboard exposes:
 - telemetry volume and average event duration
 - compliance posture, governance findings, and recovery actions
 - model pipeline activity and the final executive brief
+- a plain-English scenario builder that drafts runnable workflow JSON
 
 ## Engineering Principles
 

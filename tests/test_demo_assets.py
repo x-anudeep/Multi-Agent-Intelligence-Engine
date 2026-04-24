@@ -14,6 +14,10 @@ class DemoAssetsTests(unittest.TestCase):
         self.assertIn("metric-snapshots", html)
         self.assertIn("Runtime Profile", html)
         self.assertIn("Compliance Review", html)
+        self.assertIn("Problem Intake", html)
+        self.assertIn("generate-request", html)
+        self.assertIn("composer-send-button", html)
+        self.assertIn("composer-add", html)
 
     def test_styles_include_custom_theme_variables(self) -> None:
         css = files("maie.demo").joinpath("web", "styles.css").read_text(encoding="utf-8")
@@ -21,6 +25,8 @@ class DemoAssetsTests(unittest.TestCase):
         self.assertIn("radial-gradient", css)
         self.assertIn("@keyframes rise", css)
         self.assertIn(".runtime-profile", css)
+        self.assertIn(".composer-shell", css)
+        self.assertIn(".composer-send-button", css)
 
 
 if __name__ == "__main__":

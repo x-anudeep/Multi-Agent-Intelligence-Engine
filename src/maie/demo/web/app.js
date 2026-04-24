@@ -5,6 +5,10 @@ const state = {
 
 const elements = {
   scenarioList: document.getElementById("scenario-list"),
+  scenarioPrompt: document.getElementById("scenario-prompt"),
+  composerAddButton: document.getElementById("composer-add"),
+  generateRequestButton: document.getElementById("generate-request"),
+  builderStatus: document.getElementById("builder-status"),
   requestEditor: document.getElementById("request-editor"),
   runButton: document.getElementById("run-demo"),
   reloadButton: document.getElementById("reload-scenarios"),
@@ -92,6 +96,7 @@ function selectScenario(scenarioId) {
   });
 
   elements.requestEditor.value = JSON.stringify(selected.request, null, 2);
+  elements.scenarioPrompt.value = buildScenarioPrompt(selected);
 }
 
 function formatJsonEditor() {
@@ -135,6 +140,50 @@ async function runWorkflow() {
   } finally {
     elements.runButton.disabled = false;
   }
+}
+
+async function generateRequestFromPrompt() {
+  const prompt = elements.scenarioPrompt.value.trim();
+  if (!prompt) {
+    setBuilderStatus("Enter a scenario first.", true);
+    return;
+  }
+
+  setBuilderStatus("Generating structured request...");
+  elements.generateRequestButton.disabled = true;
+
+  try {
+    const response = await fetch("/api/demo/draft-scenario", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || "Scenario drafting failed.");
+    }
+    elements.requestEditor.value = JSON.stringify(result.request, null, 2);
+    setBuilderStatus(`Generated ${result.signal_count} signal(s) for ${result.analysis.supplier_name}.`);
+    setStatus("Structured request generated.");
+  } catch (error) {
+    setBuilderStatus(error.message || "Scenario drafting failed.", true);
+  } finally {
+    elements.generateRequestButton.disabled = false;
+  }
+}
+
+function preloadSelectedScenario() {
+  const selected = state.scenarios.find((scenario) => scenario.id === state.selectedScenarioId);
+  if (!selected) {
+    setBuilderStatus("Select a scenario card first, or type your own problem.", true);
+    return;
+  }
+
+  elements.scenarioPrompt.value = buildScenarioPrompt(selected);
+  elements.scenarioPrompt.focus();
+  setBuilderStatus(`Loaded ${selected.title} into the problem intake bar.`);
 }
 
 function renderResult(result) {
@@ -238,6 +287,11 @@ function setStatus(message, isError = false) {
   elements.runStatus.style.color = isError ? "#a64d2d" : "";
 }
 
+function setBuilderStatus(message, isError = false) {
+  elements.builderStatus.textContent = message;
+  elements.builderStatus.style.color = isError ? "#a64d2d" : "";
+}
+
 function valueOrDash(value) {
   return value === null || value === undefined ? "-" : String(value);
 }
@@ -275,6 +329,15 @@ function buildComplianceDetails(dashboard) {
   ];
 }
 
+function buildScenarioPrompt(scenario) {
+  const request = scenario.request || {};
+  const signals = Array.isArray(request.signals) ? request.signals : [];
+  const signalSummary = signals
+    .map((signal) => `${signal.headline} (${signal.source}, severity ${signal.severity}, ${signal.region})`)
+    .join(" ");
+  return `${scenario.summary} Supplier ${request.supplier_name || "Scenario Supplier"} operates in ${request.sector || "financial-services"} under ${request.jurisdiction || "US"} jurisdiction. ${signalSummary}`.trim();
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -285,8 +348,16 @@ function escapeHtml(value) {
 }
 
 elements.runButton.addEventListener("click", runWorkflow);
+elements.generateRequestButton.addEventListener("click", generateRequestFromPrompt);
+elements.composerAddButton.addEventListener("click", preloadSelectedScenario);
 elements.reloadButton.addEventListener("click", loadScenarios);
 elements.formatButton.addEventListener("click", formatJsonEditor);
+elements.scenarioPrompt.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    generateRequestFromPrompt();
+  }
+});
 
 Promise.all([loadHealth(), loadScenarios()]).catch((error) => {
   setStatus(error.message || "Demo initialization failed.", true);

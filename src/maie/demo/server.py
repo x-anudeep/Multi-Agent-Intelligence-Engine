@@ -66,34 +66,55 @@ class DemoRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
-        if path != "/api/demo/run":
-            self._send_json(HTTPStatus.NOT_FOUND, {"error": "Not found."})
-            return
-
         try:
             content_length = int(self.headers.get("Content-Length", "0"))
             payload = json.loads(self.rfile.read(content_length) or b"{}")
-            result = asyncio.run(self.demo_service.run_workflow(payload))
         except json.JSONDecodeError:
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Request body must be valid JSON."})
             return
-        except ValidationError as error:
-            self._send_json(
-                HTTPStatus.BAD_REQUEST,
-                {
-                    "error": "Workflow request validation failed.",
-                    "details": error.errors(),
-                },
-            )
-            return
-        except Exception as error:  # pragma: no cover
-            self._send_json(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                {"error": "Live demo execution failed.", "details": str(error)},
-            )
+
+        if path == "/api/demo/run":
+            try:
+                result = asyncio.run(self.demo_service.run_workflow(payload))
+            except ValidationError as error:
+                self._send_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {
+                        "error": "Workflow request validation failed.",
+                        "details": error.errors(),
+                    },
+                )
+                return
+            except Exception as error:  # pragma: no cover
+                self._send_json(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    {"error": "Live demo execution failed.", "details": str(error)},
+                )
+                return
+
+            self._send_json(HTTPStatus.OK, result)
             return
 
-        self._send_json(HTTPStatus.OK, result)
+        if path == "/api/demo/draft-scenario":
+            try:
+                drafted = self.demo_service.draft_scenario(str(payload.get("prompt", "")))
+            except ValueError as error:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(error)})
+                return
+            except ValidationError as error:
+                self._send_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {
+                        "error": "Scenario drafting failed validation.",
+                        "details": error.errors(),
+                    },
+                )
+                return
+
+            self._send_json(HTTPStatus.OK, drafted)
+            return
+
+        self._send_json(HTTPStatus.NOT_FOUND, {"error": "Not found."})
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A003
         return
@@ -123,4 +144,3 @@ class DemoRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
-

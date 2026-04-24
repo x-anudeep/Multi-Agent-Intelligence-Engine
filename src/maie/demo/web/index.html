@@ -74,6 +74,31 @@
             </div>
             <button id="format-json" class="ghost-button" type="button">Format</button>
           </div>
+          <div class="scenario-builder">
+            <div class="composer-shell">
+              <label class="builder-label" for="scenario-prompt">Problem Intake</label>
+              <textarea
+                id="scenario-prompt"
+                class="scenario-prompt"
+                rows="3"
+                spellcheck="false"
+                placeholder="Describe your problem in plain English. Example: Supplier Apex Components disclosed debt covenant pressure in an SEC filing while North America port congestion delayed semiconductor shipments for 10 days."
+              ></textarea>
+              <div class="composer-footer">
+                <div class="composer-meta">
+                  <button id="composer-add" class="composer-icon-button" type="button" aria-label="Use selected scenario summary">
+                    +
+                  </button>
+                  <span class="composer-chip">Scenario Builder</span>
+                  <span class="composer-chip">Backend Drafting</span>
+                </div>
+                <button id="generate-request" class="composer-send-button" type="button" aria-label="Generate request">
+                  ↑
+                </button>
+              </div>
+            </div>
+            <span id="builder-status" class="builder-status">Type your problem, then send it to generate workflow JSON.</span>
+          </div>
           <textarea id="request-editor" spellcheck="false"></textarea>
           <div class="action-row">
             <button id="run-demo" class="primary-button" type="button">Run Workflow</button>
