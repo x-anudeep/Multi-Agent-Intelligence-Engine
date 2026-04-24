@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from maie.domain.models import ProviderName, SignalSource
+from maie.domain.models import SignalSource
 from maie.providers.base import BaseModelProvider, ModelOutput
 
 
