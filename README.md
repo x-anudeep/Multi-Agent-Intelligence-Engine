@@ -74,6 +74,7 @@ The test suite still uses offline providers so the repository remains verifiable
 - `docs/service-delivery.md`
 - `docs/governance-evaluation-iac.md`
 - `docs/live-demo.md`
+- `docs/render-deploy.md`
 
 ## API Run
 

@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: multi-agent-intelligence-engine
+    runtime: python
+    plan: free
+    buildCommand: pip install -e .
+    startCommand: PYTHONPATH=src python -m maie.demo.cli --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/demo/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: APP_ENV
+        value: production
+      - key: USE_MOCK_PROVIDERS
+        value: false
+      - key: CHECKPOINT_BACKEND
+        value: sqlite
+      - key: STATE_BACKEND
+        value: memory
+      - key: CHECKPOINT_DIR
+        value: /tmp/maie/checkpoints
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OLLAMA_MODEL
+        value: gpt-oss:120b
+      - key: OLLAMA_HOST
+        value: https://ollama.com
+      - key: OPENROUTER_MODEL
+        value: openai/gpt-oss-120b:free
+      - key: OPENROUTER_HOST
+        value: https://openrouter.ai/api/v1
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OLLAMA_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
