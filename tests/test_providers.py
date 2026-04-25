@@ -5,6 +5,9 @@ import unittest
 
 from maie.core.config import Settings
 from maie.domain.models import ProviderName, SignalSource, SupplierSignal
+from maie.providers.gemini import GeminiProvider
+from maie.providers.ollama import OllamaProvider
+from maie.providers.openrouter import OpenRouterProvider
 from maie.providers.registry import build_default_provider_registry
 
 
@@ -41,6 +44,39 @@ class ProviderRegistryTests(unittest.TestCase):
 
         self.assertGreaterEqual(int(output.structured_content["overall_risk_score"]), 80)
         self.assertTrue(bool(output.structured_content["requires_human_review"]))
+
+    def test_gemini_key_registers_live_vertex_provider(self) -> None:
+        registry = build_default_provider_registry(
+            Settings(
+                use_mock_providers=False,
+                gemini_api_key="test-key",
+                gemini_model="gemini-2.5-flash",
+            )
+        )
+
+        self.assertIsInstance(registry.get(ProviderName.VERTEX_AI), GeminiProvider)
+
+    def test_ollama_key_registers_live_ollama_provider(self) -> None:
+        registry = build_default_provider_registry(
+            Settings(
+                use_mock_providers=False,
+                ollama_api_key="test-key",
+                ollama_model="gpt-oss:120b",
+            )
+        )
+
+        self.assertIsInstance(registry.get(ProviderName.OLLAMA), OllamaProvider)
+
+    def test_openrouter_key_registers_live_openrouter_provider(self) -> None:
+        registry = build_default_provider_registry(
+            Settings(
+                use_mock_providers=False,
+                openrouter_api_key="test-key",
+                openrouter_model="openai/gpt-oss-120b:free",
+            )
+        )
+
+        self.assertIsInstance(registry.get(ProviderName.OPENROUTER), OpenRouterProvider)
 
 
 if __name__ == "__main__":

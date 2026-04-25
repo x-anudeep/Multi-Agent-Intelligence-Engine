@@ -3,7 +3,10 @@ from __future__ import annotations
 from maie.core.config import Settings
 from maie.domain.models import ProviderName
 from maie.providers.base import BaseModelProvider
+from maie.providers.gemini import GeminiProvider
 from maie.providers.mock import MockProvider
+from maie.providers.ollama import OllamaProvider
+from maie.providers.openrouter import OpenRouterProvider
 
 
 class ProviderRegistry:
@@ -27,31 +30,48 @@ class ProviderRegistry:
 
 def build_default_provider_registry(settings: Settings) -> ProviderRegistry:
     registry = ProviderRegistry()
-    openai_model = settings.openai_model or (
-        "mock-openai-gpt" if settings.use_mock_providers else "configured-openai-model"
-    )
-    anthropic_model = settings.anthropic_model or (
-        "mock-anthropic-claude" if settings.use_mock_providers else "configured-anthropic-model"
-    )
-    vertex_model = settings.vertex_model or (
-        "mock-vertex-gemini" if settings.use_mock_providers else "configured-vertex-model"
-    )
+    if not settings.use_mock_providers:
+        if settings.gemini_api_key:
+            registry.register(
+                GeminiProvider(
+                    api_key=settings.gemini_api_key,
+                    model_id=settings.gemini_model or "gemini-2.5-flash",
+                )
+            )
+        if settings.ollama_api_key:
+            registry.register(
+                OllamaProvider(
+                    api_key=settings.ollama_api_key,
+                    model_id=settings.ollama_model,
+                    host=settings.ollama_host,
+                )
+            )
+        if settings.openrouter_api_key:
+            registry.register(
+                OpenRouterProvider(
+                    api_key=settings.openrouter_api_key,
+                    model_id=settings.openrouter_model,
+                    host=settings.openrouter_host,
+                )
+            )
+        return registry
+
     registry.register(
         MockProvider(
             name=ProviderName.OPENAI,
-            model_id=openai_model,
+            model_id="offline-openai-test-provider",
         )
     )
     registry.register(
         MockProvider(
             name=ProviderName.ANTHROPIC,
-            model_id=anthropic_model,
+            model_id="offline-anthropic-test-provider",
         )
     )
     registry.register(
         MockProvider(
             name=ProviderName.VERTEX_AI,
-            model_id=vertex_model,
+            model_id="offline-gemini-test-provider",
         )
     )
     return registry

@@ -9,11 +9,9 @@ description = "Enterprise multi-agent intelligence engine for supply chain risk 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "anthropic",
   "fastapi",
-  "google-cloud-aiplatform",
+  "google-genai",
   "langgraph",
-  "openai",
   "opentelemetry-api",
   "opentelemetry-sdk",
   "pydantic",

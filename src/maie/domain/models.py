@@ -16,6 +16,8 @@ class ProviderName(StrEnum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     VERTEX_AI = "vertex_ai"
+    OLLAMA = "ollama"
+    OPENROUTER = "openrouter"
     NONE = "none"
 
 

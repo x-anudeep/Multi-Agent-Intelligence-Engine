@@ -3,205 +3,172 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MAIE Live Demo</title>
+    <title>Multi-Agent Intelligence Engine</title>
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <header class="hero">
-        <div class="hero-copy reveal">
-          <p class="eyebrow">Agentic Workflow Platform</p>
-          <h1>Multi-Agent Intelligence Engine Control Room</h1>
-          <p class="hero-text">
-            Run a financial-services supply chain risk workflow end-to-end and inspect
-            routing, governance, grounded knowledge, checkpoints, and the final executive brief.
-          </p>
-          <div class="status-row">
-            <div class="status-pill">
-              <span class="status-label">Environment</span>
-              <strong id="health-environment">Loading</strong>
-            </div>
-            <div class="status-pill">
-              <span class="status-label">Governance</span>
-              <strong id="health-governance">Loading</strong>
-            </div>
-            <div class="status-pill">
-              <span class="status-label">Checkpoint Backend</span>
-              <strong id="health-checkpoint-backend">Loading</strong>
-            </div>
-            <div class="status-pill">
-              <span class="status-label">State Backend</span>
-              <strong id="health-state-backend">Loading</strong>
-            </div>
-            <div class="status-pill">
-              <span class="status-label">Agent Count</span>
-              <strong id="health-agents">0</strong>
-            </div>
-            <div class="status-pill">
-              <span class="status-label">Scenario Count</span>
-              <strong id="health-scenarios">0</strong>
-            </div>
-          </div>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Supply Chain Risk Assessment</p>
+          <h1>Multi-Agent Intelligence Engine</h1>
         </div>
-        <aside class="hero-panel reveal delay-1">
-          <div class="hero-panel-card">
-            <span class="card-kicker">Operational Overview</span>
-            <h2>Enterprise workflow orchestration with runtime evidence</h2>
-            <p>
-              Inspect workflow execution, policy controls, runtime persistence, latency metrics, grounded knowledge, and analyst-facing output in a single operational view.
-            </p>
-          </div>
-        </aside>
+        <div class="health-strip" aria-label="Backend health">
+          <span id="health-status">Connecting</span>
+          <span id="health-mode">Mock providers</span>
+        </div>
       </header>
 
-      <main class="dashboard-grid">
-        <section class="panel scenario-panel reveal delay-1">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Scenario Library</p>
-              <h2>Choose a scenario</h2>
-            </div>
-            <button id="reload-scenarios" class="ghost-button" type="button">Refresh</button>
+      <section class="workspace">
+        <form id="risk-form" class="input-panel">
+          <div class="section-heading">
+            <h2>Company Input</h2>
+            <p>Enter supplier and signal details. The form sends everything to the backend workflow.</p>
           </div>
-          <div id="scenario-list" class="scenario-list"></div>
-        </section>
 
-        <section class="panel request-panel reveal delay-2">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Workflow Input</p>
-              <h2>Editable JSON request</h2>
-            </div>
-            <button id="format-json" class="ghost-button" type="button">Format</button>
-          </div>
-          <div class="scenario-builder">
-            <div class="composer-shell">
-              <label class="builder-label" for="scenario-prompt">Problem Intake</label>
-              <textarea
-                id="scenario-prompt"
-                class="scenario-prompt"
-                rows="3"
-                spellcheck="false"
-                placeholder="Describe your problem in plain English. Example: Supplier Apex Components disclosed debt covenant pressure in an SEC filing while North America port congestion delayed semiconductor shipments for 10 days."
-              ></textarea>
-              <div class="composer-footer">
-                <div class="composer-meta">
-                  <button id="composer-add" class="composer-icon-button" type="button" aria-label="Use selected scenario summary">
-                    +
-                  </button>
-                  <span class="composer-chip">Scenario Builder</span>
-                  <span class="composer-chip">Backend Drafting</span>
-                </div>
-                <button id="generate-request" class="composer-send-button" type="button" aria-label="Generate request">
-                  ↑
-                </button>
-              </div>
-            </div>
-            <span id="builder-status" class="builder-status">Type your problem, then send it to generate workflow JSON.</span>
-          </div>
-          <textarea id="request-editor" spellcheck="false"></textarea>
-          <div class="action-row">
-            <button id="run-demo" class="primary-button" type="button">Run Workflow</button>
-            <span id="run-status" class="run-status">Ready</span>
-          </div>
-        </section>
+          <div class="field-grid">
+            <label>
+              Supplier Name
+              <input
+                id="supplier-name"
+                name="supplier_name"
+                type="text"
+                autocomplete="organization"
+                placeholder="Apex Components"
+                required
+              />
+            </label>
 
-        <section class="panel results-panel reveal delay-2">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Execution Results</p>
-              <h2>Operational outcome</h2>
-            </div>
+            <label>
+              Sector
+              <select id="sector" name="sector">
+                <option value="financial-services">Financial Services</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="technology">Technology</option>
+              </select>
+            </label>
+
+            <label>
+              Jurisdiction
+              <input id="jurisdiction" name="jurisdiction" type="text" value="US" required />
+            </label>
           </div>
+
+          <div class="signals-header">
+            <div>
+              <h2>Risk Signals</h2>
+              <p>Add each news item, filing, internal alert, or supplier profile signal one by one.</p>
+            </div>
+            <button id="add-signal" class="secondary-button" type="button">Add Signal</button>
+          </div>
+
+          <div id="signals-list" class="signals-list"></div>
+
+          <div class="form-actions">
+            <button id="submit-workflow" class="primary-button" type="submit">Assess Risk</button>
+            <span id="form-status" role="status">Ready</span>
+          </div>
+        </form>
+
+        <section class="results-panel" aria-live="polite">
+          <div class="section-heading">
+            <h2>Backend Results</h2>
+            <p>Risk score, compliance outcome, and final report appear here.</p>
+          </div>
+
           <div class="metrics-grid">
             <article class="metric-card">
               <span>Risk Score</span>
-              <strong id="metric-risk-score">-</strong>
+              <strong id="risk-score">-</strong>
             </article>
             <article class="metric-card">
-              <span>Disruption Probability</span>
-              <strong id="metric-disruption">-</strong>
+              <span>Disruption</span>
+              <strong id="disruption-probability">-</strong>
             </article>
             <article class="metric-card">
-              <span>Checkpoints</span>
-              <strong id="metric-checkpoints">-</strong>
+              <span>Status</span>
+              <strong id="workflow-status">-</strong>
             </article>
             <article class="metric-card">
-              <span>Snapshots</span>
-              <strong id="metric-snapshots">-</strong>
-            </article>
-            <article class="metric-card">
-              <span>Telemetry Events</span>
-              <strong id="metric-telemetry">-</strong>
-            </article>
-            <article class="metric-card">
-              <span>Avg Step Latency</span>
-              <strong id="metric-latency">-</strong>
-            </article>
-            <article class="metric-card">
-              <span>Routing Branches</span>
-              <strong id="metric-branches">-</strong>
-            </article>
-            <article class="metric-card">
-              <span>Tool Runs</span>
-              <strong id="metric-tools">-</strong>
-            </article>
-            <article class="metric-card">
-              <span>Workflow Status</span>
-              <strong id="metric-status">-</strong>
+              <span>Human Review</span>
+              <strong id="human-review">-</strong>
             </article>
           </div>
 
-          <div class="results-grid">
-            <article class="result-card">
-              <h3>Routing Path</h3>
-              <ul id="routing-path" class="chip-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Governance Review</h3>
-              <div id="governance-status" class="status-badge neutral">Waiting</div>
-              <ul id="governance-findings" class="text-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Runtime Profile</h3>
-              <ul id="runtime-profile" class="text-list runtime-profile"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Knowledge Hits</h3>
-              <ul id="knowledge-hits" class="text-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Checkpoint Timeline</h3>
-              <ul id="checkpoint-list" class="text-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Snapshot Timeline</h3>
-              <ul id="snapshot-list" class="text-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Model Pipeline</h3>
-              <ul id="model-pipeline" class="chip-list"></ul>
-            </article>
-            <article class="result-card">
-              <h3>Compliance Review</h3>
-              <div id="compliance-status" class="status-badge neutral">Waiting</div>
-              <ul id="compliance-details" class="text-list compliance-details"></ul>
-            </article>
+          <div class="result-block">
+            <h3>Compliance</h3>
+            <ul id="compliance-details" class="text-list"></ul>
           </div>
 
-          <div class="report-section">
-            <article class="result-card report-card">
-              <h3>Executive Brief</h3>
-              <pre id="report-preview"></pre>
-            </article>
-            <article class="result-card state-card">
-              <h3>Audit Trail</h3>
-              <ul id="audit-trail" class="text-list"></ul>
-            </article>
+          <div class="result-block">
+            <h3>Recommended Report</h3>
+            <div id="report-preview" class="report-preview">
+              Submit a supplier risk request to see the final backend report.
+            </div>
           </div>
         </section>
-      </main>
-    </div>
+      </section>
+    </main>
+
+    <template id="signal-template">
+      <article class="signal-card">
+        <div class="signal-card-header">
+          <h3>Signal <span class="signal-number"></span></h3>
+          <button class="remove-signal" type="button" aria-label="Remove signal">Remove</button>
+        </div>
+
+        <div class="field-grid">
+          <label>
+            Source
+            <select class="signal-source" required>
+              <option value="news">News</option>
+              <option value="sec_filing">SEC Filing</option>
+              <option value="internal_alert">Internal Alert</option>
+              <option value="supplier_profile">Supplier Profile</option>
+            </select>
+          </label>
+
+          <label>
+            Severity
+            <select class="signal-severity" required>
+              <option value="1">1 - Low</option>
+              <option value="2">2 - Minor</option>
+              <option value="3" selected>3 - Moderate</option>
+              <option value="4">4 - High</option>
+              <option value="5">5 - Critical</option>
+            </select>
+          </label>
+
+          <label>
+            Region
+            <input class="signal-region" type="text" placeholder="North America" required />
+          </label>
+        </div>
+
+        <label>
+          Headline
+          <input
+            class="signal-headline"
+            type="text"
+            placeholder="Port congestion delays semiconductor shipments"
+            required
+          />
+        </label>
+
+        <label>
+          Summary
+          <textarea
+            class="signal-summary"
+            rows="3"
+            placeholder="Shipment timelines are delayed by 10 days."
+            required
+          ></textarea>
+        </label>
+      </article>
+    </template>
+
     <script src="/assets/app.js"></script>
   </body>
-  </html>
+</html>

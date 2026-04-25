@@ -1,125 +1,79 @@
-const state = {
-  scenarios: [],
-  selectedScenarioId: null,
-};
-
 const elements = {
-  scenarioList: document.getElementById("scenario-list"),
-  scenarioPrompt: document.getElementById("scenario-prompt"),
-  composerAddButton: document.getElementById("composer-add"),
-  generateRequestButton: document.getElementById("generate-request"),
-  builderStatus: document.getElementById("builder-status"),
-  requestEditor: document.getElementById("request-editor"),
-  runButton: document.getElementById("run-demo"),
-  reloadButton: document.getElementById("reload-scenarios"),
-  formatButton: document.getElementById("format-json"),
-  runStatus: document.getElementById("run-status"),
-  healthEnvironment: document.getElementById("health-environment"),
-  healthGovernance: document.getElementById("health-governance"),
-  healthCheckpointBackend: document.getElementById("health-checkpoint-backend"),
-  healthStateBackend: document.getElementById("health-state-backend"),
-  healthAgents: document.getElementById("health-agents"),
-  healthScenarios: document.getElementById("health-scenarios"),
-  metricRiskScore: document.getElementById("metric-risk-score"),
-  metricDisruption: document.getElementById("metric-disruption"),
-  metricCheckpoints: document.getElementById("metric-checkpoints"),
-  metricSnapshots: document.getElementById("metric-snapshots"),
-  metricTelemetry: document.getElementById("metric-telemetry"),
-  metricLatency: document.getElementById("metric-latency"),
-  metricBranches: document.getElementById("metric-branches"),
-  metricTools: document.getElementById("metric-tools"),
-  metricStatus: document.getElementById("metric-status"),
-  routingPath: document.getElementById("routing-path"),
-  governanceStatus: document.getElementById("governance-status"),
-  governanceFindings: document.getElementById("governance-findings"),
-  runtimeProfile: document.getElementById("runtime-profile"),
-  knowledgeHits: document.getElementById("knowledge-hits"),
-  checkpointList: document.getElementById("checkpoint-list"),
-  snapshotList: document.getElementById("snapshot-list"),
-  modelPipeline: document.getElementById("model-pipeline"),
-  complianceStatus: document.getElementById("compliance-status"),
+  form: document.getElementById("risk-form"),
+  supplierName: document.getElementById("supplier-name"),
+  sector: document.getElementById("sector"),
+  jurisdiction: document.getElementById("jurisdiction"),
+  signalsList: document.getElementById("signals-list"),
+  addSignalButton: document.getElementById("add-signal"),
+  submitButton: document.getElementById("submit-workflow"),
+  formStatus: document.getElementById("form-status"),
+  signalTemplate: document.getElementById("signal-template"),
+  healthStatus: document.getElementById("health-status"),
+  healthMode: document.getElementById("health-mode"),
+  riskScore: document.getElementById("risk-score"),
+  disruptionProbability: document.getElementById("disruption-probability"),
+  workflowStatus: document.getElementById("workflow-status"),
+  humanReview: document.getElementById("human-review"),
   complianceDetails: document.getElementById("compliance-details"),
   reportPreview: document.getElementById("report-preview"),
-  auditTrail: document.getElementById("audit-trail"),
 };
 
-async function loadHealth() {
-  const response = await fetch("/api/demo/health");
-  const payload = await response.json();
-  elements.healthEnvironment.textContent = payload.environment;
-  elements.healthGovernance.textContent = payload.governance_enabled ? "Enabled" : "Disabled";
-  elements.healthCheckpointBackend.textContent = payload.checkpoint_backend;
-  elements.healthStateBackend.textContent = payload.state_backend;
-  elements.healthAgents.textContent = String(payload.agent_count);
-  elements.healthScenarios.textContent = String(payload.scenarios_available);
-}
+function addSignal(defaults = {}) {
+  const fragment = elements.signalTemplate.content.cloneNode(true);
+  const card = fragment.querySelector(".signal-card");
 
-async function loadScenarios() {
-  setStatus("Loading scenarios...");
-  const response = await fetch("/api/demo/scenarios");
-  const payload = await response.json();
-  state.scenarios = payload.scenarios || [];
-  elements.scenarioList.innerHTML = "";
+  card.querySelector(".signal-source").value = defaults.source || "news";
+  card.querySelector(".signal-severity").value = String(defaults.severity || 3);
+  card.querySelector(".signal-region").value = defaults.region || "";
+  card.querySelector(".signal-headline").value = defaults.headline || "";
+  card.querySelector(".signal-summary").value = defaults.summary || "";
 
-  state.scenarios.forEach((scenario, index) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "scenario-card";
-    card.innerHTML = `
-      <header>
-        <h3>${escapeHtml(scenario.title)}</h3>
-        <span class="scenario-badge">${escapeHtml(scenario.badge)}</span>
-      </header>
-      <p>${escapeHtml(scenario.summary)}</p>
-    `;
-    card.addEventListener("click", () => selectScenario(scenario.id));
-    elements.scenarioList.appendChild(card);
-    scenario._element = card;
-
-    if (index === 0) {
-      selectScenario(scenario.id);
+  card.querySelector(".remove-signal").addEventListener("click", () => {
+    if (elements.signalsList.children.length === 1) {
+      setStatus("At least one signal is required.", true);
+      return;
     }
+    card.remove();
+    renumberSignals();
   });
 
-  setStatus("Scenarios ready.");
+  elements.signalsList.appendChild(fragment);
+  renumberSignals();
 }
 
-function selectScenario(scenarioId) {
-  state.selectedScenarioId = scenarioId;
-  const selected = state.scenarios.find((scenario) => scenario.id === scenarioId);
-  if (!selected) {
+function renumberSignals() {
+  [...elements.signalsList.querySelectorAll(".signal-card")].forEach((card, index) => {
+    card.querySelector(".signal-number").textContent = String(index + 1);
+  });
+}
+
+function buildPayload() {
+  const signals = [...elements.signalsList.querySelectorAll(".signal-card")].map((card) => ({
+    source: card.querySelector(".signal-source").value,
+    headline: card.querySelector(".signal-headline").value.trim(),
+    summary: card.querySelector(".signal-summary").value.trim(),
+    severity: Number(card.querySelector(".signal-severity").value),
+    region: card.querySelector(".signal-region").value.trim(),
+  }));
+
+  return {
+    supplier_name: elements.supplierName.value.trim(),
+    sector: elements.sector.value,
+    jurisdiction: elements.jurisdiction.value.trim(),
+    signals,
+  };
+}
+
+async function runWorkflow(event) {
+  event.preventDefault();
+
+  if (!elements.form.reportValidity()) {
     return;
   }
 
-  state.scenarios.forEach((scenario) => {
-    scenario._element?.classList.toggle("active", scenario.id === scenarioId);
-  });
-
-  elements.requestEditor.value = JSON.stringify(selected.request, null, 2);
-  elements.scenarioPrompt.value = buildScenarioPrompt(selected);
-}
-
-function formatJsonEditor() {
-  try {
-    const parsed = JSON.parse(elements.requestEditor.value);
-    elements.requestEditor.value = JSON.stringify(parsed, null, 2);
-    setStatus("JSON formatted.");
-  } catch (error) {
-    setStatus("JSON formatting failed. Fix the request body first.", true);
-  }
-}
-
-async function runWorkflow() {
-  let payload;
-  try {
-    payload = JSON.parse(elements.requestEditor.value);
-  } catch (error) {
-    setStatus("Request JSON is invalid.", true);
-    return;
-  }
-
-  setStatus("Running workflow...");
-  elements.runButton.disabled = true;
+  const payload = buildPayload();
+  setStatus("Sending request to backend...");
+  elements.submitButton.disabled = true;
 
   try {
     const response = await fetch("/api/demo/run", {
@@ -130,141 +84,70 @@ async function runWorkflow() {
       body: JSON.stringify(payload),
     });
     const result = await response.json();
+
     if (!response.ok) {
-      throw new Error(result.error || "Live demo execution failed.");
+      throw new Error(result.error || "Backend workflow failed.");
     }
+
     renderResult(result);
-    setStatus("Workflow complete.");
+    setStatus("Risk assessment complete.");
   } catch (error) {
-    setStatus(error.message || "Live demo execution failed.", true);
+    setStatus(error.message || "Backend workflow failed.", true);
   } finally {
-    elements.runButton.disabled = false;
+    elements.submitButton.disabled = false;
   }
 }
 
-async function generateRequestFromPrompt() {
-  const prompt = elements.scenarioPrompt.value.trim();
-  if (!prompt) {
-    setBuilderStatus("Enter a scenario first.", true);
-    return;
-  }
-
-  setBuilderStatus("Generating structured request...");
-  elements.generateRequestButton.disabled = true;
-
+async function loadHealth() {
   try {
-    const response = await fetch("/api/demo/draft-scenario", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt }),
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || "Scenario drafting failed.");
-    }
-    elements.requestEditor.value = JSON.stringify(result.request, null, 2);
-    setBuilderStatus(`Generated ${result.signal_count} signal(s) for ${result.analysis.supplier_name}.`);
-    setStatus("Structured request generated.");
+    const response = await fetch("/api/demo/health");
+    const payload = await response.json();
+    elements.healthStatus.textContent = payload.status === "ok" ? "Backend online" : "Backend unavailable";
+    elements.healthMode.textContent = `${payload.provider_mode} providers`;
   } catch (error) {
-    setBuilderStatus(error.message || "Scenario drafting failed.", true);
-  } finally {
-    elements.generateRequestButton.disabled = false;
+    elements.healthStatus.textContent = "Backend unavailable";
+    elements.healthMode.textContent = "Check server";
   }
-}
-
-function preloadSelectedScenario() {
-  const selected = state.scenarios.find((scenario) => scenario.id === state.selectedScenarioId);
-  if (!selected) {
-    setBuilderStatus("Select a scenario card first, or type your own problem.", true);
-    return;
-  }
-
-  elements.scenarioPrompt.value = buildScenarioPrompt(selected);
-  elements.scenarioPrompt.focus();
-  setBuilderStatus(`Loaded ${selected.title} into the problem intake bar.`);
 }
 
 function renderResult(result) {
-  const workflow = result.workflow;
-  const dashboard = result.dashboard;
-  const checkpoints = result.checkpoints;
-
-  elements.metricRiskScore.textContent = valueOrDash(dashboard.risk_score);
-  elements.metricDisruption.textContent =
-    dashboard.disruption_probability === null
-      ? "-"
-      : `${Number(dashboard.disruption_probability * 100).toFixed(0)}%`;
-  elements.metricCheckpoints.textContent = String(dashboard.checkpoint_count || 0);
-  elements.metricSnapshots.textContent = String(dashboard.snapshot_count || 0);
-  elements.metricTelemetry.textContent = String(dashboard.telemetry_event_count || 0);
-  elements.metricLatency.textContent =
-    dashboard.average_event_duration_ms === null || dashboard.average_event_duration_ms === undefined
-      ? "-"
-      : `${Number(dashboard.average_event_duration_ms).toFixed(2)} ms`;
-  elements.metricBranches.textContent = String(dashboard.routing_branch_count || 0);
-  elements.metricTools.textContent = String(dashboard.tool_runs || 0);
-  elements.metricStatus.textContent = humanizeStatus(dashboard.workflow_status);
-
-  renderList(elements.routingPath, dashboard.routing_targets, { chip: true });
-  renderList(elements.governanceFindings, dashboard.governance_findings);
-  renderList(elements.runtimeProfile, buildRuntimeProfile(dashboard));
-  renderList(elements.knowledgeHits, dashboard.knowledge_hits);
-  renderList(
-    elements.checkpointList,
-    checkpoints.checkpoints.map((checkpoint) => checkpoint.label),
-  );
-  renderList(elements.snapshotList, dashboard.snapshot_labels);
-  renderList(elements.modelPipeline, dashboard.model_invocations, { chip: true });
-  renderList(elements.complianceDetails, buildComplianceDetails(dashboard));
-  renderList(elements.auditTrail, dashboard.audit_trail);
-
-  elements.reportPreview.textContent =
-    dashboard.report_preview || "No report preview available.";
-
-  const statusClass = dashboard.governance_approved ? "approved" : "review";
-  elements.governanceStatus.className = `status-badge ${statusClass}`;
-  elements.governanceStatus.textContent = dashboard.governance_approved
-    ? "Approved"
-    : "Review Needed";
-
-  if (!dashboard.governance_findings.length) {
-    renderList(elements.governanceFindings, ["No governance findings triggered for this run."]);
-  }
-
-  if (!dashboard.knowledge_hits.length) {
-    renderList(elements.knowledgeHits, ["No knowledge retrieval hits were attached to this run."]);
-  }
-
-  if (!dashboard.audit_trail.length) {
-    renderList(elements.auditTrail, ["No audit trail events recorded."]);
-  }
-
-  if (!dashboard.snapshot_labels.length) {
-    renderList(elements.snapshotList, ["No runtime snapshots recorded."]);
-  }
-
-  if (!dashboard.model_invocations.length) {
-    renderList(elements.modelPipeline, ["No model invocations recorded."], { chip: true });
-  }
-
+  const dashboard = result.dashboard || {};
+  const workflow = result.workflow || {};
+  const state = workflow.state_snapshot || {};
   const compliance = dashboard.compliance_review;
-  if (compliance && compliance.blocking_findings && compliance.blocking_findings.length) {
-    elements.complianceStatus.className = "status-badge review";
-    elements.complianceStatus.textContent = "Conditional";
-  } else if (compliance) {
-    elements.complianceStatus.className = "status-badge approved";
-    elements.complianceStatus.textContent = "Approved";
-  } else {
-    elements.complianceStatus.className = "status-badge neutral";
-    elements.complianceStatus.textContent = "Not Required";
+
+  elements.riskScore.textContent = valueOrDash(dashboard.risk_score);
+  elements.disruptionProbability.textContent =
+    dashboard.disruption_probability === null || dashboard.disruption_probability === undefined
+      ? "-"
+      : `${Math.round(Number(dashboard.disruption_probability) * 100)}%`;
+  elements.workflowStatus.textContent = humanize(dashboard.workflow_status);
+  elements.humanReview.textContent = dashboard.requires_human_review ? "Yes" : "No";
+  elements.reportPreview.innerHTML = renderMarkdownReport(
+    dashboard.report_preview || "No report was generated.",
+  );
+
+  const complianceItems = compliance
+    ? [
+        `Status: ${humanize(compliance.status)}`,
+        `Summary: ${compliance.summary}`,
+        `Obligations: ${(compliance.obligations || []).join("; ") || "None"}`,
+        `Mitigation plan: ${(dashboard.recovery_actions || []).join("; ") || "None"}`,
+        `Blocking findings: ${(compliance.blocking_findings || []).join("; ") || "None"}`,
+      ]
+    : ["Compliance review is still pending for this request."];
+
+  if (state.knowledge_hits && state.knowledge_hits.length) {
+    complianceItems.push(`Knowledge hits: ${state.knowledge_hits.length}`);
   }
+
+  renderList(elements.complianceDetails, complianceItems);
 }
 
 function renderList(target, items, options = {}) {
   target.innerHTML = "";
-  if (!items || !items.length) {
+
+  if (!items.length) {
     const item = document.createElement("li");
     item.textContent = "No data available.";
     target.appendChild(item);
@@ -273,31 +156,25 @@ function renderList(target, items, options = {}) {
 
   items.forEach((entry) => {
     const item = document.createElement("li");
-    item.textContent = entry;
+    item.textContent = humanize(entry);
     if (options.chip) {
-      target.appendChild(item);
-      return;
+      item.className = "chip";
     }
     target.appendChild(item);
   });
 }
 
 function setStatus(message, isError = false) {
-  elements.runStatus.textContent = message;
-  elements.runStatus.style.color = isError ? "#a64d2d" : "";
-}
-
-function setBuilderStatus(message, isError = false) {
-  elements.builderStatus.textContent = message;
-  elements.builderStatus.style.color = isError ? "#a64d2d" : "";
+  elements.formStatus.textContent = message;
+  elements.formStatus.classList.toggle("error", isError);
 }
 
 function valueOrDash(value) {
-  return value === null || value === undefined ? "-" : String(value);
+  return value === null || value === undefined || value === "" ? "-" : String(value);
 }
 
-function humanizeStatus(value) {
-  if (!value) {
+function humanize(value) {
+  if (value === null || value === undefined || value === "") {
     return "-";
   }
   return String(value)
@@ -305,37 +182,14 @@ function humanizeStatus(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function buildRuntimeProfile(dashboard) {
-  return [
-    `Checkpoint store: ${valueOrDash(dashboard.checkpoint_location)}`,
-    `Human decision: ${humanizeStatus(dashboard.human_decision)}`,
-    `Requires human review: ${dashboard.requires_human_review ? "Yes" : "No"}`,
-    `Sector: ${valueOrDash(dashboard.sector)} | Jurisdiction: ${valueOrDash(dashboard.jurisdiction)}`,
-  ];
-}
-
-function buildComplianceDetails(dashboard) {
-  const compliance = dashboard.compliance_review;
-  if (!compliance) {
-    return ["No compliance review was required for this workflow."];
-  }
-
-  return [
-    `Status: ${humanizeStatus(compliance.status)}`,
-    `Summary: ${compliance.summary}`,
-    `Obligations: ${(compliance.obligations || []).join("; ") || "None"}`,
-    `Mitigation plan: ${(dashboard.recovery_actions || []).join("; ") || "None"}`,
-    `Blocking findings: ${(compliance.blocking_findings || []).join("; ") || "None"}`,
-  ];
-}
-
-function buildScenarioPrompt(scenario) {
-  const request = scenario.request || {};
-  const signals = Array.isArray(request.signals) ? request.signals : [];
-  const signalSummary = signals
-    .map((signal) => `${signal.headline} (${signal.source}, severity ${signal.severity}, ${signal.region})`)
-    .join(" ");
-  return `${scenario.summary} Supplier ${request.supplier_name || "Scenario Supplier"} operates in ${request.sector || "financial-services"} under ${request.jurisdiction || "US"} jurisdiction. ${signalSummary}`.trim();
+function renderMarkdownReport(markdown) {
+  return escapeHtml(markdown)
+    .replace(/^# (.*)$/gm, "<h2>$1</h2>")
+    .replace(/^## (.*)$/gm, "<h3>$1</h3>")
+    .replace(/^- (.*)$/gm, "<li>$1</li>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/\n/g, "<br>");
 }
 
 function escapeHtml(value) {
@@ -347,18 +201,15 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-elements.runButton.addEventListener("click", runWorkflow);
-elements.generateRequestButton.addEventListener("click", generateRequestFromPrompt);
-elements.composerAddButton.addEventListener("click", preloadSelectedScenario);
-elements.reloadButton.addEventListener("click", loadScenarios);
-elements.formatButton.addEventListener("click", formatJsonEditor);
-elements.scenarioPrompt.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    generateRequestFromPrompt();
-  }
+elements.form.addEventListener("submit", runWorkflow);
+elements.addSignalButton.addEventListener("click", () => addSignal());
+
+addSignal({
+  source: "news",
+  severity: 4,
+  region: "North America",
+  headline: "Port congestion delays semiconductor shipments",
+  summary: "Shipment timelines are delayed by 10 days.",
 });
 
-Promise.all([loadHealth(), loadScenarios()]).catch((error) => {
-  setStatus(error.message || "Demo initialization failed.", true);
-});
+loadHealth();

@@ -10,12 +10,11 @@ Banks and financial institutions depend on global supplier networks. When advers
 
 - typed workflow state and policy-based routing
 - specialized research, scoring, compliance, reporting, and human review agents
-- multi-provider orchestration across OpenAI, Anthropic, and Vertex AI
+- live multi-provider orchestration across Gemini, Ollama, and OpenRouter
 - deterministic tool-backed research with relational checkpointing, runtime snapshots, and telemetry
 - API contracts, container runtime assets, and Kubernetes manifests
 - local knowledge retrieval, governance review, and evaluation harnesses
-- browser-based live demo with scenario presets and workflow inspection
-- browser-based live demo with scenario presets, runtime metrics, and workflow inspection
+- browser-based live demo with direct supplier risk input and formatted backend results
 
 ## High-Level Architecture
 
@@ -65,7 +64,8 @@ cp .env.example .env
 PYTHONPATH=src python -m maie
 ```
 
-The local run uses deterministic mock providers so the workflow stays testable without any cloud credentials.
+Set `GEMINI_API_KEY`, `OLLAMA_API_KEY`, and `OPENROUTER_API_KEY` in `.env` for the finished live provider workflow.
+The test suite still uses offline providers so the repository remains verifiable without cloud credentials.
 
 ## Documentation
 
@@ -135,7 +135,7 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
 cp .env.example .env
-PYTHONPATH=src python -m maie.demo.cli
+PYTHONPATH=src .venv/bin/python -m maie.demo.cli
 ```
 
 Or with `make`:

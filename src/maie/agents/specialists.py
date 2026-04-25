@@ -58,19 +58,26 @@ class ResearchAgent(BaseAgent):
                 [f"{hit.title}: {hit.excerpt}" for hit in retrievals]
             )
 
-        provider = self._require_provider_registry().get(self.provider)
-        provider_output = await provider.generate_text(
-            "research_synthesis",
-            {
-                "supplier_name": state["supplier_name"],
-                "signals": [signal.to_dict() for signal in signals],
-                "tool_results": tool_results,
-                "knowledge_hits": knowledge_hits,
-            },
-        )
+        provider_output = None
+        provider_names = self._require_provider_registry().list_names()
+        if self.provider.value in provider_names:
+            provider = self._require_provider_registry().get(self.provider)
+            provider_output = await provider.generate_text(
+                "research_synthesis",
+                {
+                    "supplier_name": state["supplier_name"],
+                    "signals": [signal.to_dict() for signal in signals],
+                    "tool_results": tool_results,
+                    "knowledge_hits": knowledge_hits,
+                },
+            )
 
         notes = [
-            provider_output.content,
+            (
+                provider_output.content
+                if provider_output is not None
+                else f"Collected {len(tool_results)} tool result(s) and {len(knowledge_hits)} knowledge hit(s) for {state['supplier_name']}."
+            ),
             *[
                 f"{signal.source.value}: {signal.headline} | severity={signal.severity} | region={signal.region}"
                 for signal in signals
@@ -84,19 +91,20 @@ class ResearchAgent(BaseAgent):
                 for signal in signals
             ]
 
-        model_history = [
-            *state.get("model_history", []),
-            ModelInvocationRecord(
-                provider=self.provider,
-                task_name="research_synthesis",
-                summary=str(
-                    provider_output.metadata.get(
-                    "summary",
-                    "Research provider synthesized multi-tool evidence.",
-                    )
-                ),
-            ),
-        ]
+        model_history = [*state.get("model_history", [])]
+        if provider_output is not None:
+            model_history.append(
+                ModelInvocationRecord(
+                    provider=self.provider,
+                    task_name="research_synthesis",
+                    summary=str(
+                        provider_output.metadata.get(
+                            "summary",
+                            "Research provider synthesized multi-tool evidence.",
+                        )
+                    ),
+                )
+            )
         audit_trail = [
             *state.get("audit_trail", []),
             "Research agent synthesized source-level evidence into normalized notes.",
@@ -187,7 +195,13 @@ class ComplianceReviewAgent(BaseAgent):
     provider = ProviderName.OPENAI
 
     async def run(self, state: WorkflowState) -> AgentExecutionResult:
-        provider = self._require_provider_registry().get(self.provider)
+        provider_registry = self._require_provider_registry()
+        provider_name = (
+            ProviderName.OLLAMA
+            if ProviderName.OLLAMA.value in provider_registry.list_names()
+            else self.provider
+        )
+        provider = provider_registry.get(provider_name)
         assessment = state.get("risk_assessment")
         provider_output = await provider.generate_structured(
             "compliance_review",
@@ -209,12 +223,12 @@ class ComplianceReviewAgent(BaseAgent):
             blocking_findings=list(review_payload["blocking_findings"]),
         )
         model_history = [
-            *state.get("model_history", []),
-            ModelInvocationRecord(
-                provider=self.provider,
-                task_name="compliance_review",
-                summary=str(
-                    provider_output.metadata.get(
+                    *state.get("model_history", []),
+                    ModelInvocationRecord(
+                        provider=provider_name,
+                        task_name="compliance_review",
+                        summary=str(
+                            provider_output.metadata.get(
                         "summary",
                         "Compliance provider validated escalation and mitigation obligations.",
                     )
@@ -287,7 +301,13 @@ class ReportGenerationAgent(BaseAgent):
     async def run(self, state: WorkflowState) -> AgentExecutionResult:
         assessment = state.get("risk_assessment")
         compliance_review = state.get("compliance_review")
-        provider = self._require_provider_registry().get(self.provider)
+        provider_registry = self._require_provider_registry()
+        provider_name = (
+            ProviderName.OPENROUTER
+            if ProviderName.OPENROUTER.value in provider_registry.list_names()
+            else self.provider
+        )
+        provider = provider_registry.get(provider_name)
         provider_output = await provider.generate_text(
             "report_generation",
             {
@@ -308,7 +328,7 @@ class ReportGenerationAgent(BaseAgent):
                 "model_history": [
                     *state.get("model_history", []),
                     ModelInvocationRecord(
-                        provider=self.provider,
+                        provider=provider_name,
                         task_name="report_generation",
                         summary=str(
                             provider_output.metadata.get(

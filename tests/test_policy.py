@@ -64,7 +64,7 @@ class PolicyRouterTests(unittest.TestCase):
         decision = self.router.route(state)
         self.assertEqual(decision.target_agent, AgentTarget.COMPLIANCE_REVIEW)
 
-    def test_routes_to_report_when_scoring_is_complete(self) -> None:
+    def test_routes_to_compliance_for_every_completed_score(self) -> None:
         state = build_initial_state("Apex Components", [self.signal])
         state["research_notes"] = ["Research complete"]
         state["collected_evidence"] = ["News signal"]
@@ -78,7 +78,7 @@ class PolicyRouterTests(unittest.TestCase):
             requires_human_review=False,
         )
         decision = self.router.route(state)
-        self.assertEqual(decision.target_agent, AgentTarget.REPORT)
+        self.assertEqual(decision.target_agent, AgentTarget.COMPLIANCE_REVIEW)
 
     def test_routes_back_to_human_review_when_compliance_blocks_reporting(self) -> None:
         state = build_initial_state("Apex Components", [self.signal])
